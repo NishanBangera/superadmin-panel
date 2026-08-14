@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la \"d:\\\\Project\\\\SketchMonk\\\\zoqodeal-platform\" 2>&1 | head -50)",
+      "Bash(ls -la \"d:\\\\Project\\\\SketchMonk\\\\zoqodeal-platform\\\\apps\\\\admin\" 2>&1 | head -50)",
+      "Bash(ls -la \"c:\\\\Users\\\\nisha\\\\Downloads\\\\\" 2>&1 | grep -i zoqo)",
+      "Bash(npm -v)",
+      "Bash(npm view *)"
+    ]
+  }
+}
