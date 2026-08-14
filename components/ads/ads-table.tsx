@@ -176,14 +176,14 @@ export function AdsTable() {
             Review, moderate, and manage every listing on the marketplace.
           </p>
         </div>
-        {/* <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" onClick={() => setAutoExpiryOpen(true)}>
             <SettingsIcon /> Auto-expiry settings
           </Button>
-          <Button variant="outline" onClick={() => setAnalyticsTarget("aggregate")}>
+          {/* <Button variant="outline" onClick={() => setAnalyticsTarget("aggregate")}>
             <LineChartIcon /> Ad reports &amp; analytics
-          </Button>
-        </div> */}
+          </Button> */}
+        </div>
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
