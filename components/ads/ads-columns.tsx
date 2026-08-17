@@ -27,11 +27,12 @@ import { Switch } from "@/components/ui/switch"
 import { StatusBadge } from "@/components/ads/status-badge"
 import type { Ad } from "@/components/ads/ads-data"
 
-export function formatPrice(price: number, category: string, priceUnit?: string) {
+export function formatPrice(price: number, postingType?: string) {
   if (price === 0) {
-    return category === "Jobs" ? "Not disclosed" : "Free / On request"
+    return "On request"
   }
-  return `${price.toLocaleString("en-US")} ${priceUnit || "OMR"}`
+  const formatted = `${price.toLocaleString("en-US")} OMR`
+  return postingType === "For Rent" ? `${formatted} / mo` : formatted
 }
 
 export function formatDate(value: string) {
@@ -43,11 +44,9 @@ export function formatDate(value: string) {
 }
 
 const postingTypeColors: Record<string, string> = {
-  Sale: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
-  Rent: "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20",
-  Wanted: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20",
-  Service: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
-  Job: "bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/20",
+  "For Sale": "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
+  "For Rent": "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20",
+  "Projects": "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20",
 }
 
 export type AdsColumnHandlers = {
@@ -152,7 +151,7 @@ export function getAdsColumns(handlers: AdsColumnHandlers): ColumnDef<Ad>[] {
       accessorKey: "postingType",
       header: "Type",
       cell: ({ row }) => {
-        const type = row.original.postingType || "Sale"
+        const type = row.original.postingType || "For Sale"
         return (
           <Badge
             variant="outline"
@@ -204,11 +203,7 @@ export function getAdsColumns(handlers: AdsColumnHandlers): ColumnDef<Ad>[] {
       header: "Price",
       cell: ({ row }) => (
         <span className="text-sm font-medium tabular-nums">
-          {formatPrice(
-            row.original.price,
-            row.original.category,
-            row.original.priceUnit
-          )}
+          {formatPrice(row.original.price, row.original.postingType)}
         </span>
       ),
     },

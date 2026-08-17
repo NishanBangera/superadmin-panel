@@ -6,22 +6,17 @@ import { useRouter } from "next/navigation"
 import {
   ArrowLeftIcon,
   BadgeCheckIcon,
-  BuildingIcon,
   CalendarIcon,
-  CheckCircle2Icon,
   CheckIcon,
   ClockIcon,
   CompassIcon,
   CopyIcon,
-  CreditCardIcon,
-  DollarSignIcon,
   EditIcon,
   EyeIcon,
   HeartIcon,
   HomeIcon,
   ImageIcon,
   KeyIcon,
-  LayersIcon,
   MailIcon,
   MapPinIcon,
   MousePointerClickIcon,
@@ -53,11 +48,27 @@ import { RejectReasonDialog } from "@/components/ads/reject-reason-dialog"
 import { DeleteAdDialog } from "@/components/ads/delete-ad-dialog"
 import { useAdsStore } from "@/components/ads/ads-store"
 import { formatPrice, formatDate } from "@/components/ads/ads-columns"
+import {
+  amenityLabels,
+  advancedFeaturesLabels,
+  nearbyFacilitiesLabels,
+} from "@/components/ads/ads-data"
 
 const postingTypeColors: Record<string, string> = {
-  Sale: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
-  Rent: "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20",
-  Project: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20",
+  "For Sale": "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
+  "For Rent": "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20",
+  "Projects": "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20",
+}
+
+const furnishingLabel: Record<string, string> = {
+  yes: "Furnished",
+  partly: "Semi-Furnished",
+  no: "Unfurnished",
+}
+
+const projectStatusLabel: Record<string, string> = {
+  ready: "Ready",
+  "under-construction": "Under Construction",
 }
 
 export function AdDetailsView({ adId }: { adId: string }) {
@@ -155,7 +166,7 @@ export function AdDetailsView({ adId }: { adId: string }) {
                     "bg-muted text-muted-foreground"
                   }
                 >
-                  For {ad.postingType}
+                  {ad.postingType}
                 </Badge>
                 {ad.featured && (
                   <Badge
@@ -229,34 +240,15 @@ export function AdDetailsView({ adId }: { adId: string }) {
 
       {/* Pending Moderation Banner */}
       {isPending && (
-        <div className="flex items-center justify-between gap-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-amber-900 dark:text-amber-200">
-          <div className="flex items-center gap-3">
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-amber-500/20">
-              <ClockIcon className="size-5 text-amber-700 dark:text-amber-400" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold">Pending Superadmin Approval</p>
-              <p className="text-xs text-amber-800/80 dark:text-amber-300/80">
-                This real estate listing has been submitted and is awaiting admin verification before publishing publicly.
-              </p>
-            </div>
+        <div className="flex items-center gap-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-amber-900 dark:text-amber-200">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-amber-500/20">
+            <ClockIcon className="size-5 text-amber-700 dark:text-amber-400" />
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <Button
-              size="sm"
-              onClick={handleApprove}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white h-8 text-xs"
-            >
-              <CheckIcon className="size-3.5" /> Approve
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setRejectDialogOpen(true)}
-              className="border-amber-600/30 hover:bg-amber-500/20 h-8 text-xs text-amber-900 dark:text-amber-100"
-            >
-              <XIcon className="size-3.5" /> Reject
-            </Button>
+          <div>
+            <p className="text-sm font-semibold">Pending Superadmin Approval</p>
+            <p className="text-xs text-amber-800/80 dark:text-amber-300/80">
+              This real estate listing has been submitted and is awaiting admin verification before publishing publicly.
+            </p>
           </div>
         </div>
       )}
@@ -279,7 +271,7 @@ export function AdDetailsView({ adId }: { adId: string }) {
         <Card className="p-3.5 flex flex-col gap-1 bg-card">
           <span className="text-xs text-muted-foreground font-medium">Price</span>
           <span className="text-lg font-bold text-foreground">
-            {formatPrice(ad.price, ad.category, ad.priceUnit)}
+            {formatPrice(ad.price, ad.postingType)}
           </span>
           <span className="text-[11px] text-muted-foreground">
             {prop?.priceNegotiable ? "Negotiable" : "Fixed price"}
@@ -415,13 +407,13 @@ export function AdDetailsView({ adId }: { adId: string }) {
                 <HomeIcon className="size-4 text-primary" /> Property Specifications
               </CardTitle>
               <CardDescription>
-                Detailed characteristics and architectural specifications
+                Architectural layout and physical characteristics
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-y-4 gap-x-6 sm:grid-cols-3">
                 <div>
-                  <span className="text-xs text-muted-foreground block">Building / Property Type</span>
+                  <span className="text-xs text-muted-foreground block">Property Type</span>
                   <span className="text-sm font-semibold text-foreground">
                     {prop?.propertyType || ad.category}
                   </span>
@@ -466,27 +458,9 @@ export function AdDetailsView({ adId }: { adId: string }) {
                 <div>
                   <span className="text-xs text-muted-foreground block">Furnishing</span>
                   <span className="text-sm font-semibold text-foreground">
-                    {prop?.furnishing || "Unfurnished"}
+                    {prop?.furnishing ? (furnishingLabel[prop.furnishing] ?? prop.furnishing) : "Unfurnished"}
                   </span>
                 </div>
-
-                {prop?.ownership && (
-                  <div>
-                    <span className="text-xs text-muted-foreground block">Ownership Title</span>
-                    <span className="text-sm font-semibold text-foreground">
-                      {prop.ownership}
-                    </span>
-                  </div>
-                )}
-
-                {prop?.parkingSpaces !== undefined && (
-                  <div>
-                    <span className="text-xs text-muted-foreground block">Parking Spaces</span>
-                    <span className="text-sm font-semibold text-foreground">
-                      {prop.parkingSpaces} {prop.parkingSpaces === 1 ? "Space" : "Spaces"}
-                    </span>
-                  </div>
-                )}
 
                 {prop?.floorNumber && (
                   <div>
@@ -497,46 +471,28 @@ export function AdDetailsView({ adId }: { adId: string }) {
                   </div>
                 )}
 
-                {prop?.developer && (
-                  <div>
-                    <span className="text-xs text-muted-foreground block">Developer</span>
-                    <span className="text-sm font-semibold text-foreground">
-                      {prop.developer}
-                    </span>
-                  </div>
-                )}
-
-                {prop?.completionStatus && (
+                {prop?.projectStatus && (
                   <div>
                     <span className="text-xs text-muted-foreground block">Project Status</span>
                     <span className="text-sm font-semibold text-foreground">
-                      {prop.completionStatus}
+                      {projectStatusLabel[prop.projectStatus] ?? prop.projectStatus}
                     </span>
                   </div>
                 )}
 
-                {prop?.handoverDate && (
+                {prop?.handoverBy && (
                   <div>
-                    <span className="text-xs text-muted-foreground block">Handover Date</span>
+                    <span className="text-xs text-muted-foreground block">Handover By</span>
                     <span className="text-sm font-semibold text-foreground">
-                      {prop.handoverDate}
-                    </span>
-                  </div>
-                )}
-
-                {prop?.zonedFor && (
-                  <div>
-                    <span className="text-xs text-muted-foreground block">Zoning / Use</span>
-                    <span className="text-sm font-semibold text-foreground">
-                      {prop.zonedFor}
+                      {prop.handoverBy}
                     </span>
                   </div>
                 )}
 
                 {prop?.paymentMethod && (
                   <div>
-                    <span className="text-xs text-muted-foreground block">Payment Terms</span>
-                    <span className="text-sm font-semibold text-foreground">
+                    <span className="text-xs text-muted-foreground block">Payment Period</span>
+                    <span className="text-sm font-semibold text-foreground capitalize">
                       {prop.paymentMethod}
                     </span>
                   </div>
@@ -562,7 +518,7 @@ export function AdDetailsView({ adId }: { adId: string }) {
                       className="gap-1.5 py-1 px-2.5 text-xs font-normal"
                     >
                       <CheckIcon className="size-3 text-emerald-600" />
-                      {amenity}
+                      {amenityLabels[amenity] ?? amenity}
                     </Badge>
                   ))}
                 </div>
@@ -587,7 +543,7 @@ export function AdDetailsView({ adId }: { adId: string }) {
                       className="gap-1.5 py-1 px-2.5 text-xs font-normal border-primary/20 bg-primary/5 text-primary"
                     >
                       <SparklesIcon className="size-3" />
-                      {feat}
+                      {advancedFeaturesLabels[feat] ?? feat}
                     </Badge>
                   ))}
                 </div>
@@ -612,7 +568,7 @@ export function AdDetailsView({ adId }: { adId: string }) {
                       className="gap-1.5 py-1 px-2.5 text-xs font-normal"
                     >
                       <MapPinIcon className="size-3 text-muted-foreground" />
-                      {fac}
+                      {nearbyFacilitiesLabels[fac] ?? fac}
                     </Badge>
                   ))}
                 </div>
@@ -659,7 +615,7 @@ export function AdDetailsView({ adId }: { adId: string }) {
                     )}
                   </div>
                   <span className="text-xs text-muted-foreground">
-                    Listed as {ad.user.accountType}
+                    Listed by {ad.user.accountType}
                   </span>
                 </div>
               </div>
@@ -778,32 +734,7 @@ export function AdDetailsView({ adId }: { adId: string }) {
                 />
               </div>
 
-              {isPending && (
-                <>
-                  <Separator />
-                  <div className="flex flex-col gap-2 pt-1">
-                    <span className="text-xs font-semibold text-muted-foreground">
-                      Moderator Decision
-                    </span>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        size="sm"
-                        onClick={handleApprove}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                      >
-                        <CheckIcon className="size-4" /> Approve
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => setRejectDialogOpen(true)}
-                      >
-                        <XIcon className="size-4" /> Reject
-                      </Button>
-                    </div>
-                  </div>
-                </>
-              )}
+
             </CardContent>
           </Card>
 
@@ -822,7 +753,7 @@ export function AdDetailsView({ adId }: { adId: string }) {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">City / Neighborhood:</span>
+                <span className="text-muted-foreground">Area / Neighborhood:</span>
                 <span className="font-medium text-foreground">{ad.city}</span>
               </div>
               {ad.address && (

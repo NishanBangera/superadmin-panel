@@ -5,7 +5,6 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
   ArrowLeftIcon,
-  CheckIcon,
   CompassIcon,
   HomeIcon,
   ImageIcon,
@@ -19,7 +18,6 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -43,6 +41,8 @@ import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import {
   advancedFeaturesList,
+  advancedFeaturesLabels,
+  amenityLabels,
   availableAmenities,
   bedroomOptions,
   categories,
@@ -50,8 +50,10 @@ import {
   furnishingOptions,
   governorates,
   nearbyFacilitiesList,
-  ownershipOptions,
+  nearbyFacilitiesLabels,
+  paymentMethods,
   postingTypes,
+  projectStatusOptions,
   propertyTypes,
   statuses,
   type Ad,
@@ -69,7 +71,6 @@ type FormState = {
   postingType: PostingType
   status: AdStatus
   price: string
-  priceUnit: string
   priceNegotiable: boolean
   governorate: string
   city: string
@@ -89,10 +90,9 @@ function initFormState(ad: Ad): FormState {
     titleAr: ad.titleAr || "",
     category: ad.category || "Apartments",
     subcategory: ad.subcategory || "",
-    postingType: ad.postingType || "Sale",
+    postingType: ad.postingType || "For Sale",
     status: ad.status || "Pending",
     price: String(ad.price ?? 0),
-    priceUnit: ad.priceUnit || (ad.postingType === "Rent" ? "OMR / month" : "OMR"),
     priceNegotiable: !!ad.propertyDetails?.priceNegotiable,
     governorate: ad.governorate || "Muscat",
     city: ad.city || "Al Mouj",
@@ -105,21 +105,15 @@ function initFormState(ad: Ad): FormState {
     images: ad.images && ad.images.length > 0 ? [...ad.images] : [],
     propertyDetails: {
       propertyType: ad.propertyDetails?.propertyType || "Apartment",
-      bedrooms: ad.propertyDetails?.bedrooms || "2 BHK",
+      bedrooms: ad.propertyDetails?.bedrooms || "2",
       bathrooms: ad.propertyDetails?.bathrooms || 2,
       area: ad.propertyDetails?.area || 120,
       landArea: ad.propertyDetails?.landArea || 0,
       floorNumber: ad.propertyDetails?.floorNumber || "",
-      totalFloors: ad.propertyDetails?.totalFloors || 1,
-      furnishing: ad.propertyDetails?.furnishing || "Unfurnished",
-      ownership: ad.propertyDetails?.ownership || "Freehold",
-      parkingSpaces: ad.propertyDetails?.parkingSpaces || 1,
-      developer: ad.propertyDetails?.developer || "",
-      yearBuilt: ad.propertyDetails?.yearBuilt || 2023,
-      completionStatus: ad.propertyDetails?.completionStatus || "Ready to move",
-      handoverDate: ad.propertyDetails?.handoverDate || "",
-      zonedFor: ad.propertyDetails?.zonedFor || "Residential",
-      paymentMethod: ad.propertyDetails?.paymentMethod || "Cash",
+      furnishing: ad.propertyDetails?.furnishing || "no",
+      projectStatus: ad.propertyDetails?.projectStatus || "ready",
+      handoverBy: ad.propertyDetails?.handoverBy || "",
+      paymentMethod: ad.propertyDetails?.paymentMethod || "monthly",
       priceNegotiable: !!ad.propertyDetails?.priceNegotiable,
       amenities: ad.propertyDetails?.amenities ? [...ad.propertyDetails.amenities] : [],
       advancedFeatures: ad.propertyDetails?.advancedFeatures
@@ -172,7 +166,7 @@ export function AdEditForm({ adId }: { adId: string }) {
 
     const priceNum = parseFloat(form.price)
     if (isNaN(priceNum) || priceNum < 0) {
-      toast.error("Please enter a valid price amount")
+      toast.error("Please enter a valid price amount in OMR")
       return
     }
 
@@ -184,7 +178,6 @@ export function AdEditForm({ adId }: { adId: string }) {
       postingType: form.postingType,
       status: form.status,
       price: priceNum,
-      priceUnit: form.priceUnit,
       governorate: form.governorate,
       city: form.city.trim() || "Muscat",
       location: `${form.governorate}, ${form.city.trim() || "Muscat"}`,
@@ -318,7 +311,7 @@ export function AdEditForm({ adId }: { adId: string }) {
                 Edit Real Estate Listing ({ad.id})
               </h1>
               <p className="text-xs text-muted-foreground">
-                Update property details, pricing, location in Oman, and architectural specifications.
+                Update property specifications, pricing, location in Oman, and amenities.
               </p>
             </div>
           </div>
@@ -341,7 +334,7 @@ export function AdEditForm({ adId }: { adId: string }) {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Main 2-column Content */}
         <div className="flex flex-col gap-6 lg:col-span-2">
-          {/* Card 1: Listing Basics & Category */}
+          {/* Card 1: Listing Overview & Category */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
@@ -408,8 +401,6 @@ export function AdEditForm({ adId }: { adId: string }) {
                         setForm({
                           ...form,
                           postingType: val as PostingType,
-                          priceUnit:
-                            val === "Rent" ? "OMR / month" : "OMR",
                         })
                     }}
                   >
@@ -419,7 +410,7 @@ export function AdEditForm({ adId }: { adId: string }) {
                     <SelectContent>
                       {postingTypes.map((pt) => (
                         <SelectItem key={pt} value={pt}>
-                          For {pt}
+                          {pt}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -427,7 +418,9 @@ export function AdEditForm({ adId }: { adId: string }) {
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="ad-price">Price Amount *</FieldLabel>
+                  <FieldLabel htmlFor="ad-price">
+                   Price (OMR{form.postingType === "For Rent" ? " / monthly" : ""}) *
+                  </FieldLabel>
                   <Input
                     id="ad-price"
                     type="number"
@@ -439,15 +432,32 @@ export function AdEditForm({ adId }: { adId: string }) {
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="ad-priceUnit">Price Unit / Interval</FieldLabel>
-                  <Input
-                    id="ad-priceUnit"
-                    value={form.priceUnit}
-                    onChange={(e) =>
-                      setForm({ ...form, priceUnit: e.target.value })
-                    }
-                    placeholder="OMR, OMR / month, etc."
-                  />
+                  <FieldLabel htmlFor="re-payment">Payment Period</FieldLabel>
+                  <Select
+                    value={form.propertyDetails.paymentMethod || "monthly"}
+                    onValueChange={(val) => {
+                      if (val) {
+                        setForm({
+                          ...form,
+                          propertyDetails: {
+                            ...form.propertyDetails,
+                            paymentMethod: val as PropertyDetails["paymentMethod"],
+                          },
+                        })
+                      }
+                    }}
+                  >
+                    <SelectTrigger id="re-payment" className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {paymentMethods.map((pm) => (
+                        <SelectItem key={pm} value={pm} className="capitalize">
+                          {pm}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </Field>
               </div>
 
@@ -476,7 +486,7 @@ export function AdEditForm({ adId }: { adId: string }) {
                 <HomeIcon className="size-4 text-primary" /> Property Specifications
               </CardTitle>
               <CardDescription>
-                Architectural layout, size, bedrooms, bathrooms, and title ownership
+                Layout, area sizes, bedrooms, bathrooms, and project status
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
@@ -511,7 +521,7 @@ export function AdEditForm({ adId }: { adId: string }) {
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="re-bedrooms">Bedrooms (BHK)</FieldLabel>
+                  <FieldLabel htmlFor="re-bedrooms">Bedrooms</FieldLabel>
                   <Select
                     value={form.propertyDetails.bedrooms || "2 BHK"}
                     onValueChange={(val) => {
@@ -595,14 +605,14 @@ export function AdEditForm({ adId }: { adId: string }) {
                         },
                       })
                     }
-                    placeholder="Optional for villas/plots"
+                    placeholder="For villas/land"
                   />
                 </Field>
 
                 <Field>
                   <FieldLabel htmlFor="re-furnishing">Furnishing Status</FieldLabel>
                   <Select
-                    value={form.propertyDetails.furnishing || "Unfurnished"}
+                    value={form.propertyDetails.furnishing || "no"}
                     onValueChange={(val) => {
                       if (val) {
                         setForm({
@@ -620,8 +630,8 @@ export function AdEditForm({ adId }: { adId: string }) {
                     </SelectTrigger>
                     <SelectContent>
                       {furnishingOptions.map((f) => (
-                        <SelectItem key={f} value={f}>
-                          {f}
+                        <SelectItem key={f.value} value={f.value}>
+                          {f.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -630,54 +640,6 @@ export function AdEditForm({ adId }: { adId: string }) {
               </div>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <Field>
-                  <FieldLabel htmlFor="re-ownership">Ownership Title</FieldLabel>
-                  <Select
-                    value={form.propertyDetails.ownership || "Freehold"}
-                    onValueChange={(val) => {
-                      if (val) {
-                        setForm({
-                          ...form,
-                          propertyDetails: {
-                            ...form.propertyDetails,
-                            ownership: val as PropertyDetails["ownership"],
-                          },
-                        })
-                      }
-                    }}
-                  >
-                    <SelectTrigger id="re-ownership" className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ownershipOptions.map((o) => (
-                        <SelectItem key={o} value={o}>
-                          {o}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-
-                <Field>
-                  <FieldLabel htmlFor="re-parking">Parking Spaces</FieldLabel>
-                  <Input
-                    id="re-parking"
-                    type="number"
-                    min={0}
-                    value={form.propertyDetails.parkingSpaces ?? 1}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        propertyDetails: {
-                          ...form.propertyDetails,
-                          parkingSpaces: parseInt(e.target.value) || 0,
-                        },
-                      })
-                    }
-                  />
-                </Field>
-
                 <Field>
                   <FieldLabel htmlFor="re-floor">Floor Number</FieldLabel>
                   <Input
@@ -695,38 +657,18 @@ export function AdEditForm({ adId }: { adId: string }) {
                     placeholder="e.g. 5th Floor, G + 2"
                   />
                 </Field>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <Field>
-                  <FieldLabel htmlFor="re-developer">Developer</FieldLabel>
-                  <Input
-                    id="re-developer"
-                    value={form.propertyDetails.developer || ""}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        propertyDetails: {
-                          ...form.propertyDetails,
-                          developer: e.target.value,
-                        },
-                      })
-                    }
-                    placeholder="e.g. Al Mouj, Omran, Majan"
-                  />
-                </Field>
 
                 <Field>
                   <FieldLabel htmlFor="re-completion">Project Status</FieldLabel>
                   <Select
-                    value={form.propertyDetails.completionStatus || "Ready to move"}
+                    value={form.propertyDetails.projectStatus || "ready"}
                     onValueChange={(val) => {
                       if (val) {
                         setForm({
                           ...form,
                           propertyDetails: {
                             ...form.propertyDetails,
-                            completionStatus: val as PropertyDetails["completionStatus"],
+                            projectStatus: val as PropertyDetails["projectStatus"],
                           },
                         })
                       }
@@ -736,40 +678,31 @@ export function AdEditForm({ adId }: { adId: string }) {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Ready to move">Ready to move</SelectItem>
-                      <SelectItem value="Under construction">Under construction</SelectItem>
-                      <SelectItem value="Off-Plan">Off-Plan</SelectItem>
+                      {projectStatusOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="re-payment">Payment Method</FieldLabel>
-                  <Select
-                    value={form.propertyDetails.paymentMethod || "Cash"}
-                    onValueChange={(val) => {
-                      if (val) {
-                        setForm({
-                          ...form,
-                          propertyDetails: {
-                            ...form.propertyDetails,
-                            paymentMethod: val as PropertyDetails["paymentMethod"],
-                          },
-                        })
-                      }
-                    }}
-                  >
-                    <SelectTrigger id="re-payment" className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Cash">Cash</SelectItem>
-                      <SelectItem value="Cheque">Cheque</SelectItem>
-                      <SelectItem value="Installments">Installments</SelectItem>
-                      <SelectItem value="Monthly">Monthly</SelectItem>
-                      <SelectItem value="Yearly">Yearly</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FieldLabel htmlFor="re-handover">Handover By</FieldLabel>
+                  <Input
+                    id="re-handover"
+                    value={form.propertyDetails.handoverBy || ""}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        propertyDetails: {
+                          ...form.propertyDetails,
+                          handoverBy: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="e.g. Q4 2026, Q2 2027"
+                  />
                 </Field>
               </div>
             </CardContent>
@@ -808,7 +741,7 @@ export function AdEditForm({ adId }: { adId: string }) {
                           checked={checked}
                           onCheckedChange={() => toggleAmenity(amenity)}
                         />
-                        <span>{amenity}</span>
+                        <span>{amenityLabels[amenity] ?? amenity}</span>
                       </label>
                     )
                   })}
@@ -839,7 +772,7 @@ export function AdEditForm({ adId }: { adId: string }) {
                           checked={checked}
                           onCheckedChange={() => toggleAdvancedFeature(feat)}
                         />
-                        <span>{feat}</span>
+                        <span>{advancedFeaturesLabels[feat] ?? feat}</span>
                       </label>
                     )
                   })}
@@ -870,7 +803,7 @@ export function AdEditForm({ adId }: { adId: string }) {
                           checked={checked}
                           onCheckedChange={() => toggleNearbyFacility(fac)}
                         />
-                        <span>{fac}</span>
+                        <span>{nearbyFacilitiesLabels[fac] ?? fac}</span>
                       </label>
                     )
                   })}
@@ -1037,7 +970,7 @@ export function AdEditForm({ adId }: { adId: string }) {
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="loc-city">City / Neighborhood *</FieldLabel>
+                <FieldLabel htmlFor="loc-city">Area / Neighborhood *</FieldLabel>
                 {availableCities.length > 0 ? (
                   <Select
                     value={form.city}

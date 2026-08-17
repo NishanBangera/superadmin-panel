@@ -3,7 +3,7 @@
 import * as React from "react"
 import { adsData, type Ad, type AdStatus } from "@/components/ads/ads-data"
 
-const STORAGE_KEY = "zoqodeal_superadmin_ads_v2"
+const STORAGE_KEY = "zoqodeal_superadmin_real_estate_ads_v4"
 const SYNC_EVENT = "zoqodeal_ads_store_sync"
 
 function getInitialAds(): Ad[] {
@@ -14,7 +14,11 @@ function getInitialAds(): Ad[] {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) {
       const parsed = JSON.parse(saved)
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (
+        Array.isArray(parsed) &&
+        parsed.length > 0 &&
+        parsed.every((item) => item.propertyDetails !== undefined)
+      ) {
         return parsed
       }
     }
