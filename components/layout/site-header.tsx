@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { BellIcon, LogOutIcon, SearchIcon, SettingsIcon, UserIcon } from "lucide-react"
 
@@ -7,8 +8,10 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   Breadcrumb,
   BreadcrumbItem,
+  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
+  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -42,11 +45,50 @@ export function SiteHeader() {
       <Separator orientation="vertical" className="mr-1 h-4" />
       <Breadcrumb>
         <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbPage className="font-medium text-foreground">
-              {current?.title ?? "ZOQO DEAL"}
-            </BreadcrumbPage>
-          </BreadcrumbItem>
+          {pathname.startsWith("/ads") && pathname !== "/ads" ? (
+            <>
+              <BreadcrumbItem>
+                <BreadcrumbLink render={<Link href="/ads" />}>
+                  Ads Management
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              {pathname.endsWith("/edit") ? (
+                <>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink
+                      render={
+                        <Link
+                          href={pathname.replace("/edit", "")}
+                          className="font-mono text-xs"
+                        />
+                      }
+                    >
+                      {pathname.split("/")[2]}
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage className="font-medium text-foreground">
+                      Edit
+                    </BreadcrumbPage>
+                  </BreadcrumbItem>
+                </>
+              ) : (
+                <BreadcrumbItem>
+                  <BreadcrumbPage className="font-mono text-xs font-medium text-foreground">
+                    {pathname.split("/")[2]}
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              )}
+            </>
+          ) : (
+            <BreadcrumbItem>
+              <BreadcrumbPage className="font-medium text-foreground">
+                {current?.title ?? "ZOQO DEAL"}
+              </BreadcrumbPage>
+            </BreadcrumbItem>
+          )}
         </BreadcrumbList>
       </Breadcrumb>
 

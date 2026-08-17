@@ -1,11 +1,12 @@
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
+import Link from "next/link"
 import {
   CheckIcon,
   EditIcon,
+  EyeIcon,
   ImageIcon,
-  LineChartIcon,
   MoreHorizontalIcon,
   Trash2Icon,
   XIcon,
@@ -26,11 +27,11 @@ import { Switch } from "@/components/ui/switch"
 import { StatusBadge } from "@/components/ads/status-badge"
 import type { Ad } from "@/components/ads/ads-data"
 
-export function formatPrice(price: number, category: string) {
+export function formatPrice(price: number, category: string, priceUnit?: string) {
   if (price === 0) {
     return category === "Jobs" ? "Not disclosed" : "Free / On request"
   }
-  return `${price.toLocaleString("en-US")} OMR`
+  return `${price.toLocaleString("en-US")} ${priceUnit || "OMR"}`
 }
 
 export function formatDate(value: string) {
@@ -41,12 +42,18 @@ export function formatDate(value: string) {
   })
 }
 
+const postingTypeColors: Record<string, string> = {
+  Sale: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
+  Rent: "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20",
+  Wanted: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20",
+  Service: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+  Job: "bg-cyan-500/10 text-cyan-700 dark:text-cyan-400 border-cyan-500/20",
+}
+
 export type AdsColumnHandlers = {
   onApprove: (ad: Ad) => void
   onReject: (ad: Ad) => void
-  onEdit: (ad: Ad) => void
   onDelete: (ad: Ad) => void
-  onViewAnalytics: (ad: Ad) => void
   onToggleFeatured: (ad: Ad, value: boolean) => void
   onToggleSold: (ad: Ad, value: boolean) => void
 }
@@ -61,9 +68,7 @@ export function getAdsColumns(handlers: AdsColumnHandlers): ColumnDef<Ad>[] {
           indeterminate={
             table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()
           }
-          onCheckedChange={(value) =>
-            table.toggleAllPageRowsSelected(!!value)
-          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
         />
       ),
@@ -81,35 +86,80 @@ export function getAdsColumns(handlers: AdsColumnHandlers): ColumnDef<Ad>[] {
       accessorKey: "id",
       header: "Ad ID",
       cell: ({ row }) => (
-        <span className="font-mono text-xs text-muted-foreground">
+        <Link
+          href={`/ads/${row.original.id}`}
+          className="font-mono text-xs font-medium text-foreground hover:underline"
+        >
           {row.original.id}
-        </span>
+        </Link>
       ),
     },
     {
       accessorKey: "title",
-      header: "Title",
+      header: "Listing & Category",
       cell: ({ row }) => {
         const ad = row.original
+        const primaryImage = ad.images && ad.images.length > 0 ? ad.images[0] : null
+
         return (
-          <div className="flex min-w-56 items-center gap-3">
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted">
-              <ImageIcon className="size-4 text-muted-foreground" />
-            </div>
-            <div className="flex min-w-0 flex-col">
-              <span className="max-w-72 truncate text-sm font-medium">
+          <div className="flex min-w-64 items-center gap-3">
+            <Link
+              href={`/ads/${ad.id}`}
+              className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted ring-1 ring-foreground/10 transition-opacity hover:opacity-80"
+            >
+              {primaryImage ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={primaryImage}
+                  alt={ad.title}
+                  className="size-full object-cover"
+                />
+              ) : (
+                <ImageIcon className="size-5 text-muted-foreground" />
+              )}
+            </Link>
+            <div className="flex min-w-0 flex-col gap-0.5">
+              <Link
+                href={`/ads/${ad.id}`}
+                className="max-w-72 truncate text-sm font-medium text-foreground hover:underline"
+                title={ad.title}
+              >
                 {ad.title}
-              </span>
-              <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                {ad.category}
+              </Link>
+              <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                <span>{ad.category}</span>
+                {ad.subcategory && (
+                  <>
+                    <span>•</span>
+                    <span className="truncate max-w-28">{ad.subcategory}</span>
+                  </>
+                )}
                 {ad.featured && (
-                  <Badge variant="outline" className="h-4 px-1.5 text-[10px]">
+                  <Badge
+                    variant="outline"
+                    className="h-4 border-amber-500/30 bg-amber-500/10 px-1.5 text-[10px] text-amber-700 dark:text-amber-400 font-normal"
+                  >
                     Featured
                   </Badge>
                 )}
-              </span>
+              </div>
             </div>
           </div>
+        )
+      },
+    },
+    {
+      accessorKey: "postingType",
+      header: "Type",
+      cell: ({ row }) => {
+        const type = row.original.postingType || "Sale"
+        return (
+          <Badge
+            variant="outline"
+            className={postingTypeColors[type] || "bg-muted text-muted-foreground"}
+          >
+            {type}
+          </Badge>
         )
       },
     },
@@ -123,13 +173,21 @@ export function getAdsColumns(handlers: AdsColumnHandlers): ColumnDef<Ad>[] {
             <Avatar size="sm">
               <AvatarFallback>{user.initials}</AvatarFallback>
             </Avatar>
-            <span className="max-w-32 truncate text-sm">{user.name}</span>
+            <div className="flex flex-col min-w-0">
+              <span className="max-w-32 truncate text-sm font-medium">
+                {user.name}
+              </span>
+              <span className="text-[11px] text-muted-foreground">
+                {user.accountType || "Individual"}
+              </span>
+            </div>
           </div>
         )
       },
       filterFn: (row, _id, value: string) =>
         row.original.user.name.toLowerCase().includes(value.toLowerCase()) ||
-        row.original.title.toLowerCase().includes(value.toLowerCase()),
+        row.original.title.toLowerCase().includes(value.toLowerCase()) ||
+        row.original.id.toLowerCase().includes(value.toLowerCase()),
     },
     {
       accessorKey: "status",
@@ -140,15 +198,17 @@ export function getAdsColumns(handlers: AdsColumnHandlers): ColumnDef<Ad>[] {
           rejectionReason={row.original.rejectionReason}
         />
       ),
-      filterFn: (row, _id, value: string[]) =>
-        !value?.length || value.includes(row.original.status),
     },
     {
       accessorKey: "price",
       header: "Price",
       cell: ({ row }) => (
-        <span className="text-sm tabular-nums">
-          {formatPrice(row.original.price, row.original.category)}
+        <span className="text-sm font-medium tabular-nums">
+          {formatPrice(
+            row.original.price,
+            row.original.category,
+            row.original.priceUnit
+          )}
         </span>
       ),
     },
@@ -156,7 +216,7 @@ export function getAdsColumns(handlers: AdsColumnHandlers): ColumnDef<Ad>[] {
       accessorKey: "postedDate",
       header: "Date",
       cell: ({ row }) => (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {formatDate(row.original.postedDate)}
         </span>
       ),
@@ -167,7 +227,9 @@ export function getAdsColumns(handlers: AdsColumnHandlers): ColumnDef<Ad>[] {
       cell: ({ row }) => (
         <Switch
           checked={row.original.featured}
-          onCheckedChange={(value) => handlers.onToggleFeatured(row.original, value)}
+          onCheckedChange={(value) =>
+            handlers.onToggleFeatured(row.original, value)
+          }
           aria-label="Toggle featured"
         />
       ),
@@ -179,7 +241,9 @@ export function getAdsColumns(handlers: AdsColumnHandlers): ColumnDef<Ad>[] {
         <Switch
           checked={row.original.status === "Sold"}
           disabled={row.original.status === "Rejected"}
-          onCheckedChange={(value) => handlers.onToggleSold(row.original, value)}
+          onCheckedChange={(value) =>
+            handlers.onToggleSold(row.original, value)
+          }
           aria-label="Mark as sold"
         />
       ),
@@ -189,41 +253,54 @@ export function getAdsColumns(handlers: AdsColumnHandlers): ColumnDef<Ad>[] {
       header: () => <span className="sr-only">Actions</span>,
       cell: ({ row }) => {
         const ad = row.original
+        const isPending = ad.status === "Pending"
+
         return (
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
                 <Button variant="ghost" size="icon-sm">
-                  <MoreHorizontalIcon />
+                  <MoreHorizontalIcon className="size-4" />
                 </Button>
               }
             />
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem
-                disabled={ad.status === "Active"}
-                onClick={() => handlers.onApprove(ad)}
+                render={<Link href={`/ads/${ad.id}`} className="flex items-center gap-2 w-full" />}
               >
-                <CheckIcon /> Approve
+                <EyeIcon className="size-4" /> View details
               </DropdownMenuItem>
               <DropdownMenuItem
-                disabled={ad.status === "Rejected"}
-                onClick={() => handlers.onReject(ad)}
+                render={<Link href={`/ads/${ad.id}/edit`} className="flex items-center gap-2 w-full" />}
               >
-                <XIcon /> Reject
+                <EditIcon className="size-4" /> Edit ad details
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handlers.onEdit(ad)}>
-                <EditIcon /> Edit ad details
-              </DropdownMenuItem>
-              {/* <DropdownMenuItem onClick={() => handlers.onViewAnalytics(ad)}>
-                <LineChartIcon /> View analytics
-              </DropdownMenuItem> */}
+
+              {/* ONLY show Approve and Reject options for pending ads */}
+              {isPending && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => handlers.onApprove(ad)}
+                    className="text-emerald-600 focus:text-emerald-700 dark:text-emerald-400"
+                  >
+                    <CheckIcon className="size-4 text-emerald-600" /> Approve ad
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handlers.onReject(ad)}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <XIcon className="size-4" /> Reject ad
+                  </DropdownMenuItem>
+                </>
+              )}
+
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 variant="destructive"
                 onClick={() => handlers.onDelete(ad)}
               >
-                <Trash2Icon /> Delete ad
+                <Trash2Icon className="size-4" /> Delete ad
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

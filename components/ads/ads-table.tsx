@@ -10,15 +10,16 @@ import {
   type SortingState,
 } from "@tanstack/react-table"
 import {
+  ArrowDownUpIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  CheckIcon,
-  LineChartIcon,
+  FilterXIcon,
+  RotateCcwIcon,
   SearchIcon,
   SettingsIcon,
+  SparklesIcon,
   Trash2Icon,
-  XIcon,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -38,6 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
 import {
   Table,
   TableBody,
@@ -46,162 +48,296 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { adsData, categories, statuses, type Ad, type AdStatus } from "@/components/ads/ads-data"
+import {
+  categories,
+  postingTypes,
+  statuses,
+  type Ad,
+  type AdStatus,
+} from "@/components/ads/ads-data"
 import { getAdsColumns } from "@/components/ads/ads-columns"
 import { RejectReasonDialog } from "@/components/ads/reject-reason-dialog"
-import { EditAdSheet } from "@/components/ads/edit-ad-sheet"
 import { DeleteAdDialog } from "@/components/ads/delete-ad-dialog"
-import { AdAnalyticsDialog } from "@/components/ads/ad-analytics-dialog"
+import { BulkDeleteConfirmDialog } from "@/components/ads/bulk-delete-confirm-dialog"
 import { AutoExpirySettingsDialog } from "@/components/ads/auto-expiry-settings-dialog"
+import { useAdsStore } from "@/components/ads/ads-store"
 
 export function AdsTable() {
-  const [ads, setAds] = React.useState<Ad[]>(adsData)
+  const {
+    ads,
+    updateAd,
+    approveAd,
+    rejectAd,
+    deleteAd,
+    deleteAds,
+    toggleFeatured,
+    toggleSold,
+    resetToDefault,
+  } = useAdsStore()
+
+  // Filter States
   const [search, setSearch] = React.useState("")
   const [statusFilter, setStatusFilter] = React.useState<string>("all")
   const [categoryFilter, setCategoryFilter] = React.useState<string>("all")
+  const [postingTypeFilter, setPostingTypeFilter] = React.useState<string>("all")
+  const [minPrice, setMinPrice] = React.useState<string>("")
+  const [maxPrice, setMaxPrice] = React.useState<string>("")
+  const [featuredOnly, setFeaturedOnly] = React.useState<boolean>(false)
+  const [sortField, setSortField] = React.useState<string>("postedDate")
+  const [sortDirection, setSortDirection] = React.useState<"asc" | "desc">("desc")
+
+  // Pagination & Selection States
+  const [pagination, setPagination] = React.useState({ pageIndex: 0, pageSize: 10 })
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({})
 
+  // Modal / Dialog States
   const [rejectTarget, setRejectTarget] = React.useState<Ad | null>(null)
-  const [editTarget, setEditTarget] = React.useState<Ad | null>(null)
   const [deleteTarget, setDeleteTarget] = React.useState<Ad | null>(null)
-  const [analyticsTarget, setAnalyticsTarget] = React.useState<
-    Ad | "aggregate" | null
-  >(null)
+  const [bulkDeleteOpen, setBulkDeleteOpen] = React.useState(false)
   const [autoExpiryOpen, setAutoExpiryOpen] = React.useState(false)
-
-  const updateAd = React.useCallback((id: string, patch: Partial<Ad>) => {
-    setAds((prev) => prev.map((a) => (a.id === id ? { ...a, ...patch } : a)))
-  }, [])
-
-  const setStatus = React.useCallback(
-    (ad: Ad, status: AdStatus, extra?: Partial<Ad>) => {
-      updateAd(ad.id, { status, ...extra })
-    },
-    [updateAd]
-  )
 
   const handlers = React.useMemo(
     () => ({
       onApprove: (ad: Ad) => {
-        setStatus(ad, "Active", { rejectionReason: undefined })
+        approveAd(ad.id)
         toast.success(`${ad.id} approved`, { description: ad.title })
       },
       onReject: (ad: Ad) => setRejectTarget(ad),
-      onEdit: (ad: Ad) => setEditTarget(ad),
       onDelete: (ad: Ad) => setDeleteTarget(ad),
-      onViewAnalytics: (ad: Ad) => setAnalyticsTarget(ad),
       onToggleFeatured: (ad: Ad, value: boolean) => {
-        updateAd(ad.id, { featured: value })
-        toast.success(value ? `${ad.id} marked as featured` : `${ad.id} removed from featured`)
+        toggleFeatured(ad.id, value)
+        toast.success(
+          value ? `${ad.id} marked as featured` : `${ad.id} removed from featured`
+        )
       },
       onToggleSold: (ad: Ad, value: boolean) => {
-        setStatus(ad, value ? "Sold" : "Active")
-        toast.success(value ? `${ad.id} marked as sold` : `${ad.id} marked as active`)
+        toggleSold(ad.id, value)
+        toast.success(
+          value ? `${ad.id} marked as sold` : `${ad.id} marked as active`
+        )
       },
     }),
-    [setStatus, updateAd]
+    [approveAd, toggleFeatured, toggleSold]
   )
 
   const columns = React.useMemo(() => getAdsColumns(handlers), [handlers])
 
+  const hasActiveFilters =
+    search.trim() !== "" ||
+    statusFilter !== "all" ||
+    categoryFilter !== "all" ||
+    postingTypeFilter !== "all" ||
+    minPrice !== "" ||
+    maxPrice !== "" ||
+    featuredOnly ||
+    sortField !== "postedDate" ||
+    sortDirection !== "desc"
+
+  const resetAllFilters = () => {
+    setSearch("")
+    setStatusFilter("all")
+    setCategoryFilter("all")
+    setPostingTypeFilter("all")
+    setMinPrice("")
+    setMaxPrice("")
+    setFeaturedOnly(false)
+    setSortField("postedDate")
+    setSortDirection("desc")
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+  }
+
+  // Filter and Sort Data
   const filteredData = React.useMemo(() => {
     const query = search.trim().toLowerCase()
-    return ads.filter((ad) => {
+    const parsedMinPrice = minPrice !== "" ? parseFloat(minPrice) : null
+    const parsedMaxPrice = maxPrice !== "" ? parseFloat(maxPrice) : null
+
+    const result = ads.filter((ad) => {
+      // Search
       const matchesQuery =
         !query ||
         ad.title.toLowerCase().includes(query) ||
         ad.user.name.toLowerCase().includes(query) ||
-        ad.id.toLowerCase().includes(query)
+        ad.id.toLowerCase().includes(query) ||
+        ad.location.toLowerCase().includes(query)
+
+      // Status
       const matchesStatus = statusFilter === "all" || ad.status === statusFilter
+
+      // Category
       const matchesCategory =
         categoryFilter === "all" || ad.category === categoryFilter
-      return matchesQuery && matchesStatus && matchesCategory
+
+      // Posting Type
+      const matchesPostingType =
+        postingTypeFilter === "all" || ad.postingType === postingTypeFilter
+
+      // Price Range
+      const matchesMinPrice =
+        parsedMinPrice === null || isNaN(parsedMinPrice) || ad.price >= parsedMinPrice
+      const matchesMaxPrice =
+        parsedMaxPrice === null || isNaN(parsedMaxPrice) || ad.price <= parsedMaxPrice
+
+      // Featured Toggle
+      const matchesFeatured = !featuredOnly || ad.featured === true
+
+      return (
+        matchesQuery &&
+        matchesStatus &&
+        matchesCategory &&
+        matchesPostingType &&
+        matchesMinPrice &&
+        matchesMaxPrice &&
+        matchesFeatured
+      )
     })
-  }, [ads, search, statusFilter, categoryFilter])
+
+    // Custom Sorting
+    result.sort((a, b) => {
+      let comparison = 0
+      if (sortField === "postedDate") {
+        comparison = new Date(a.postedDate).getTime() - new Date(b.postedDate).getTime()
+      } else if (sortField === "price") {
+        comparison = a.price - b.price
+      } else if (sortField === "views") {
+        comparison = a.views - b.views
+      } else if (sortField === "title") {
+        comparison = a.title.localeCompare(b.title)
+      }
+      return sortDirection === "asc" ? comparison : -comparison
+    })
+
+    return result
+  }, [
+    ads,
+    search,
+    statusFilter,
+    categoryFilter,
+    postingTypeFilter,
+    minPrice,
+    maxPrice,
+    featuredOnly,
+    sortField,
+    sortDirection,
+  ])
 
   const table = useReactTable({
     data: filteredData,
     columns,
-    state: { sorting, rowSelection },
+    state: { sorting, rowSelection, pagination },
     getRowId: (row) => row.id,
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
+    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    initialState: { pagination: { pageSize: 10 } },
   })
 
   const selectedRows = table.getSelectedRowModel().rows
   const selectedCount = selectedRows.length
+  const pendingSelectedRows = selectedRows.filter(
+    (r) => r.original.status === "Pending"
+  )
+  const pendingSelectedCount = pendingSelectedRows.length
 
   function clearSelection() {
     setRowSelection({})
   }
 
-  function bulkApprove() {
-    selectedRows.forEach((r) => setStatus(r.original, "Active", { rejectionReason: undefined }))
-    toast.success(`${selectedCount} ad${selectedCount === 1 ? "" : "s"} approved`)
-    clearSelection()
-  }
-
-  function bulkReject() {
-    selectedRows.forEach((r) => setStatus(r.original, "Rejected"))
-    toast.success(`${selectedCount} ad${selectedCount === 1 ? "" : "s"} rejected`)
+  function bulkApprovePendingOnly() {
+    if (pendingSelectedCount === 0) return
+    pendingSelectedRows.forEach((r) => approveAd(r.original.id))
+    toast.success(
+      `${pendingSelectedCount} pending ad${pendingSelectedCount === 1 ? "" : "s"} approved`
+    )
     clearSelection()
   }
 
   function bulkFeature() {
-    selectedRows.forEach((r) => updateAd(r.original.id, { featured: true }))
-    toast.success(`${selectedCount} ad${selectedCount === 1 ? "" : "s"} marked as featured`)
+    selectedRows.forEach((r) => toggleFeatured(r.original.id, true))
+    toast.success(
+      `${selectedCount} ad${selectedCount === 1 ? "" : "s"} marked as featured`
+    )
     clearSelection()
   }
 
-  function bulkDelete() {
-    const ids = new Set(selectedRows.map((r) => r.original.id))
-    setAds((prev) => prev.filter((a) => !ids.has(a.id)))
-    toast.success(`${selectedCount} ad${selectedCount === 1 ? "" : "s"} deleted`)
+  function handleConfirmBulkDelete() {
+    const ids = selectedRows.map((r) => r.original.id)
+    deleteAds(ids)
+    toast.success(
+      `${selectedCount} ad${selectedCount === 1 ? "" : "s"} permanently deleted`
+    )
     clearSelection()
   }
+
+  const startRowIndex =
+    filteredData.length === 0
+      ? 0
+      : pagination.pageIndex * pagination.pageSize + 1
+  const endRowIndex = Math.min(
+    (pagination.pageIndex + 1) * pagination.pageSize,
+    filteredData.length
+  )
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
+      {/* Header Bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-heading text-2xl font-semibold tracking-tight">
             Ads Management
           </h1>
           <p className="text-sm text-muted-foreground">
-            Review, moderate, and manage every listing on the marketplace.
+            Review, moderate, filter, and manage listings on the marketplace.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" onClick={() => setAutoExpiryOpen(true)}>
-            <SettingsIcon /> Auto-expiry settings
+          <Button variant="outline" size="sm" onClick={() => setAutoExpiryOpen(true)}>
+            <SettingsIcon className="size-4" /> Auto-expiry settings
           </Button>
-          {/* <Button variant="outline" onClick={() => setAnalyticsTarget("aggregate")}>
-            <LineChartIcon /> Ad reports &amp; analytics
-          </Button> */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              resetToDefault()
+              toast.info("Demo data reset to initial catalog")
+            }}
+            title="Reset dataset to initial mock items"
+          >
+            <RotateCcwIcon className="size-3.5" /> Reset data
+          </Button>
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
-          <div className="relative w-full sm:w-64">
-            <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
+      {/* Primary & Advanced Filters Section */}
+      <div className="flex flex-col gap-3 rounded-xl border bg-card/60 p-4 shadow-xs">
+        {/* Row 1: Search and Main Selects */}
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+          {/* Search */}
+          <div className="relative flex-1">
+            <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by title, user, or ad ID…"
-              className="h-9 pl-8"
+              onChange={(e) => {
+                setSearch(e.target.value)
+                setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+              }}
+              placeholder="Search by title, seller, ID, location…"
+              className="h-9 pl-9"
             />
           </div>
+
+          {/* Status Dropdown */}
           <Select
             value={statusFilter}
-            onValueChange={(value) => setStatusFilter(value ?? "all")}
+            onValueChange={(val) => {
+              setStatusFilter(val ?? "all")
+              setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+            }}
           >
-            <SelectTrigger className="w-full sm:w-40">
+            <SelectTrigger className="w-full lg:w-40 h-9">
               <SelectValue placeholder="All statuses" />
             </SelectTrigger>
             <SelectContent>
@@ -213,11 +349,16 @@ export function AdsTable() {
               ))}
             </SelectContent>
           </Select>
+
+          {/* Category Dropdown */}
           <Select
             value={categoryFilter}
-            onValueChange={(value) => setCategoryFilter(value ?? "all")}
+            onValueChange={(val) => {
+              setCategoryFilter(val ?? "all")
+              setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+            }}
           >
-            <SelectTrigger className="w-full sm:w-48">
+            <SelectTrigger className="w-full lg:w-48 h-9">
               <SelectValue placeholder="All categories" />
             </SelectTrigger>
             <SelectContent>
@@ -229,47 +370,184 @@ export function AdsTable() {
               ))}
             </SelectContent>
           </Select>
+
+          {/* Posting Type Dropdown */}
+          <Select
+            value={postingTypeFilter}
+            onValueChange={(val) => {
+              setPostingTypeFilter(val ?? "all")
+              setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+            }}
+          >
+            <SelectTrigger className="w-full lg:w-44 h-9">
+              <SelectValue placeholder="All posting types" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All posting types</SelectItem>
+              {postingTypes.map((pt) => (
+                <SelectItem key={pt} value={pt}>
+                  {pt}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Bulk Actions Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 shrink-0"
+                  disabled={selectedCount === 0}
+                >
+                  Bulk actions
+                  {selectedCount > 0 && (
+                    <span className="ml-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
+                      {selectedCount}
+                    </span>
+                  )}
+                  <ChevronDownIcon className="size-3.5" />
+                </Button>
+              }
+            />
+            <DropdownMenuContent align="end" className="w-56">
+              {/* Only allow approve for pending selections */}
+              {pendingSelectedCount > 0 && (
+                <DropdownMenuItem onClick={bulkApprovePendingOnly}>
+                  <SparklesIcon className="size-4 text-emerald-600" />
+                  Approve {pendingSelectedCount} pending ad{pendingSelectedCount === 1 ? "" : "s"}
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onClick={bulkFeature}>
+                <SparklesIcon className="size-4 text-amber-500" /> Bulk mark as featured
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={() => setBulkDeleteOpen(true)}
+              >
+                <Trash2Icon className="size-4" /> Bulk delete ({selectedCount})
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button variant="outline" disabled={selectedCount === 0}>
-                Bulk actions
-                {selectedCount > 0 && (
-                  <span className="ml-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
-                    {selectedCount}
-                  </span>
-                )}
-                <ChevronDownIcon />
-              </Button>
-            }
-          />
-          <DropdownMenuContent align="end" className="w-52">
-            <DropdownMenuItem onClick={bulkApprove}>
-              <CheckIcon /> Bulk approve
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={bulkReject}>
-              <XIcon /> Bulk reject
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={bulkFeature}>
-              <CheckIcon /> Bulk mark as featured
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive" onClick={bulkDelete}>
-              <Trash2Icon /> Bulk delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* Row 2: Price Range, Sort By, Sort Order, Featured Toggle, Reset */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-3">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Price Range Filter */}
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <span className="font-medium text-foreground">Price:</span>
+              <Input
+                type="number"
+                min={0}
+                placeholder="Min OMR"
+                value={minPrice}
+                onChange={(e) => {
+                  setMinPrice(e.target.value)
+                  setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+                }}
+                className="h-8 w-24 text-xs"
+              />
+              <span>–</span>
+              <Input
+                type="number"
+                min={0}
+                placeholder="Max OMR"
+                value={maxPrice}
+                onChange={(e) => {
+                  setMaxPrice(e.target.value)
+                  setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+                }}
+                className="h-8 w-24 text-xs"
+              />
+            </div>
+
+            <div className="h-4 w-px bg-border hidden sm:block" />
+
+            {/* Sort Field and Direction */}
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <ArrowDownUpIcon className="size-3.5" />
+              <span className="font-medium text-foreground">Sort:</span>
+              <Select
+                value={sortField}
+                onValueChange={(val) => val && setSortField(val)}
+              >
+                <SelectTrigger className="h-8 w-32 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="postedDate">Date posted</SelectItem>
+                  <SelectItem value="price">Price</SelectItem>
+                  <SelectItem value="views">Views</SelectItem>
+                  <SelectItem value="title">Title</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select
+                value={sortDirection}
+                onValueChange={(val) =>
+                  val && setSortDirection(val as "asc" | "desc")
+                }
+              >
+                <SelectTrigger className="h-8 w-28 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="desc">
+                    {sortField === "postedDate" ? "Newest first" : "High to low"}
+                  </SelectItem>
+                  <SelectItem value="asc">
+                    {sortField === "postedDate" ? "Oldest first" : "Low to high"}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="h-4 w-px bg-border hidden sm:block" />
+
+            {/* Featured Only Switch */}
+            <div className="flex items-center gap-2">
+              <Switch
+                id="featured-filter-toggle"
+                checked={featuredOnly}
+                onCheckedChange={(checked) => {
+                  setFeaturedOnly(checked)
+                  setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+                }}
+              />
+              <label
+                htmlFor="featured-filter-toggle"
+                className="text-xs font-medium cursor-pointer text-foreground select-none"
+              >
+                Featured only
+              </label>
+            </div>
+          </div>
+
+          {/* Reset Filters */}
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={resetAllFilters}
+              className="h-8 text-xs text-muted-foreground hover:text-foreground"
+            >
+              <FilterXIcon className="size-3.5" /> Clear filters
+            </Button>
+          )}
+        </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl ring-1 ring-foreground/10">
+      {/* Table Container */}
+      <div className="overflow-hidden rounded-xl ring-1 ring-foreground/10 bg-card shadow-xs">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-transparent">
+              <TableRow key={headerGroup.id} className="hover:bg-transparent bg-muted/40">
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="font-semibold text-xs text-foreground/80 py-3">
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -287,9 +565,10 @@ export function AdsTable() {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() ? "selected" : undefined}
+                  className="transition-colors hover:bg-muted/30"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="py-2.5">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -299,9 +578,24 @@ export function AdsTable() {
               <TableRow className="hover:bg-transparent">
                 <TableCell
                   colSpan={columns.length}
-                  className="h-32 text-center text-sm text-muted-foreground"
+                  className="h-36 text-center text-sm text-muted-foreground"
                 >
-                  No ads match the current filters.
+                  <div className="flex flex-col items-center justify-center gap-1.5 py-4">
+                    <p className="font-medium text-foreground">No ads match the current filters.</p>
+                    <p className="text-xs text-muted-foreground">
+                      Try clearing or adjusting search terms and category filters.
+                    </p>
+                    {hasActiveFilters && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={resetAllFilters}
+                        className="mt-2"
+                      >
+                        Reset all filters
+                      </Button>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             )}
@@ -309,15 +603,46 @@ export function AdsTable() {
         </Table>
       </div>
 
-      <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
-        <p className="text-sm text-muted-foreground">
-          {selectedCount > 0
-            ? `${selectedCount} of ${filteredData.length} row(s) selected.`
-            : `${filteredData.length} ad${filteredData.length === 1 ? "" : "s"} total.`}
-        </p>
+      {/* Pagination & Footer Controls */}
+      <div className="flex flex-col items-center justify-between gap-4 sm:flex-row text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-4">
+          <p>
+            {selectedCount > 0
+              ? `${selectedCount} of ${filteredData.length} row(s) selected.`
+              : `Showing ${startRowIndex}–${endRowIndex} of ${filteredData.length} listings.`}
+          </p>
+
+          {/* Items per page selector */}
+          <div className="flex items-center gap-1.5">
+            <span>Rows per page:</span>
+            <Select
+              value={String(pagination.pageSize)}
+              onValueChange={(val) => {
+                if (val) {
+                  setPagination({
+                    pageIndex: 0,
+                    pageSize: Number(val),
+                  })
+                }
+              }}
+            >
+              <SelectTrigger className="h-8 w-18 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Page navigation */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">
-            Page {table.getState().pagination.pageIndex + 1} of{" "}
+          <span>
+            Page {table.getPageCount() === 0 ? 1 : pagination.pageIndex + 1} of{" "}
             {Math.max(table.getPageCount(), 1)}
           </span>
           <Button
@@ -325,39 +650,32 @@ export function AdsTable() {
             size="icon-sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
+            aria-label="Previous page"
           >
-            <ChevronLeftIcon />
+            <ChevronLeftIcon className="size-4" />
           </Button>
           <Button
             variant="outline"
             size="icon-sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
+            aria-label="Next page"
           >
-            <ChevronRightIcon />
+            <ChevronRightIcon className="size-4" />
           </Button>
         </div>
       </div>
 
+      {/* Dialogs */}
       <RejectReasonDialog
         ad={rejectTarget}
         onOpenChange={(open) => !open && setRejectTarget(null)}
         onConfirm={(ad, reason) => {
-          setStatus(ad, "Rejected", { rejectionReason: reason })
+          rejectAd(ad.id, reason)
           toast.success(`${ad.id} rejected`, {
-            description: "Reason sent to the user's dashboard.",
+            description: "Reason recorded and notification sent.",
           })
           setRejectTarget(null)
-        }}
-      />
-
-      <EditAdSheet
-        ad={editTarget}
-        onOpenChange={(open) => !open && setEditTarget(null)}
-        onSave={(id, patch) => {
-          updateAd(id, patch)
-          toast.success(`${id} updated`)
-          setEditTarget(null)
         }}
       />
 
@@ -365,15 +683,17 @@ export function AdsTable() {
         ad={deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         onConfirm={(ad) => {
-          setAds((prev) => prev.filter((a) => a.id !== ad.id))
+          deleteAd(ad.id)
           toast.success(`${ad.id} deleted`)
           setDeleteTarget(null)
         }}
       />
 
-      <AdAnalyticsDialog
-        target={analyticsTarget}
-        onOpenChange={(open) => !open && setAnalyticsTarget(null)}
+      <BulkDeleteConfirmDialog
+        open={bulkDeleteOpen}
+        count={selectedCount}
+        onOpenChange={setBulkDeleteOpen}
+        onConfirm={handleConfirmBulkDelete}
       />
 
       <AutoExpirySettingsDialog
