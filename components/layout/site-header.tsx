@@ -127,7 +127,7 @@ export function SiteHeader() {
             ))}
             <DropdownMenuSeparator />
             <DropdownMenuItem className="justify-center text-muted-foreground">
-              View all notifications
+              View All Notifications
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -160,7 +160,7 @@ export function SiteHeader() {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem variant="destructive">
-              <LogOutIcon /> Log out
+              <LogOutIcon /> Log Out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

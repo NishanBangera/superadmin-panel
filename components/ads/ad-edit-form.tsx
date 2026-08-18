@@ -419,7 +419,7 @@ export function AdEditForm({ adId }: { adId: string }) {
 
                 <Field>
                   <FieldLabel htmlFor="ad-price">
-                   Price (OMR{form.postingType === "For Rent" ? " / monthly" : ""}) *
+                   Price (OMR{form.postingType === "For Rent" ? " / Monthly" : ""}) *
                   </FieldLabel>
                   <Input
                     id="ad-price"
@@ -452,8 +452,8 @@ export function AdEditForm({ adId }: { adId: string }) {
                     </SelectTrigger>
                     <SelectContent>
                       {paymentMethods.map((pm) => (
-                        <SelectItem key={pm} value={pm} className="capitalize">
-                          {pm}
+                        <SelectItem key={pm.value} value={pm.value}>
+                          {pm.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -523,7 +523,7 @@ export function AdEditForm({ adId }: { adId: string }) {
                 <Field>
                   <FieldLabel htmlFor="re-bedrooms">Bedrooms</FieldLabel>
                   <Select
-                    value={form.propertyDetails.bedrooms || "2 BHK"}
+                    value={form.propertyDetails.bedrooms || "2"}
                     onValueChange={(val) => {
                       if (val) {
                         setForm({
@@ -540,9 +540,9 @@ export function AdEditForm({ adId }: { adId: string }) {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {bedroomOptions.map((bhk) => (
-                        <SelectItem key={bhk} value={bhk}>
-                          {bhk}
+                      {bedroomOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
                         </SelectItem>
                       ))}
                     </SelectContent>

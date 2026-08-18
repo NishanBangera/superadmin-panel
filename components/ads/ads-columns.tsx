@@ -263,12 +263,12 @@ export function getAdsColumns(handlers: AdsColumnHandlers): ColumnDef<Ad>[] {
               <DropdownMenuItem
                 render={<Link href={`/ads/${ad.id}`} className="flex items-center gap-2 w-full" />}
               >
-                <EyeIcon className="size-4" /> View details
+                <EyeIcon className="size-4" /> View Details
               </DropdownMenuItem>
               <DropdownMenuItem
                 render={<Link href={`/ads/${ad.id}/edit`} className="flex items-center gap-2 w-full" />}
               >
-                <EditIcon className="size-4" /> Edit ad details
+                <EditIcon className="size-4" /> Edit Ad Details
               </DropdownMenuItem>
 
               {/* ONLY show Approve and Reject options for pending ads */}
@@ -279,13 +279,13 @@ export function getAdsColumns(handlers: AdsColumnHandlers): ColumnDef<Ad>[] {
                     onClick={() => handlers.onApprove(ad)}
                     className="text-emerald-600 focus:text-emerald-700 dark:text-emerald-400"
                   >
-                    <CheckIcon className="size-4 text-emerald-600" /> Approve ad
+                    <CheckIcon className="size-4 text-emerald-600" /> Approve Ad
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => handlers.onReject(ad)}
                     className="text-destructive focus:text-destructive"
                   >
-                    <XIcon className="size-4" /> Reject ad
+                    <XIcon className="size-4" /> Reject Ad
                   </DropdownMenuItem>
                 </>
               )}
@@ -295,7 +295,7 @@ export function getAdsColumns(handlers: AdsColumnHandlers): ColumnDef<Ad>[] {
                 variant="destructive"
                 onClick={() => handlers.onDelete(ad)}
               >
-                <Trash2Icon className="size-4" /> Delete ad
+                <Trash2Icon className="size-4" /> Delete Ad
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -57,7 +57,7 @@ function EditAdForm({
   return (
     <>
       <SheetHeader>
-        <SheetTitle>Edit ad details</SheetTitle>
+        <SheetTitle>Edit Ad Details</SheetTitle>
         <SheetDescription>
           Updating {ad.id} — changes apply immediately in this preview.
         </SheetDescription>
@@ -164,7 +164,7 @@ function EditAdForm({
             })
           }
         >
-          Save changes
+          Save Changes
         </Button>
       </SheetFooter>
     </>

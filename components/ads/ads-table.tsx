@@ -338,10 +338,10 @@ export function AdsTable() {
             }}
           >
             <SelectTrigger className="w-full lg:w-40 h-9">
-              <SelectValue placeholder="All statuses" />
+              <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="all">All Statuses</SelectItem>
               {statuses.map((s) => (
                 <SelectItem key={s} value={s}>
                   {s}
@@ -359,10 +359,10 @@ export function AdsTable() {
             }}
           >
             <SelectTrigger className="w-full lg:w-48 h-9">
-              <SelectValue placeholder="All categories" />
+              <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All categories</SelectItem>
+              <SelectItem value="all">All Categories</SelectItem>
               {categories.map((c) => (
                 <SelectItem key={c} value={c}>
                   {c}
@@ -380,10 +380,10 @@ export function AdsTable() {
             }}
           >
             <SelectTrigger className="w-full lg:w-44 h-9">
-              <SelectValue placeholder="All posting types" />
+              <SelectValue placeholder="All Posting Types" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All posting types</SelectItem>
+              <SelectItem value="all">All Posting Types</SelectItem>
               {postingTypes.map((pt) => (
                 <SelectItem key={pt} value={pt}>
                   {pt}
@@ -402,7 +402,7 @@ export function AdsTable() {
                   className="h-9 shrink-0"
                   disabled={selectedCount === 0}
                 >
-                  Bulk actions
+                  Bulk Actions
                   {selectedCount > 0 && (
                     <span className="ml-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
                       {selectedCount}
@@ -417,18 +417,18 @@ export function AdsTable() {
               {pendingSelectedCount > 0 && (
                 <DropdownMenuItem onClick={bulkApprovePendingOnly}>
                   <SparklesIcon className="size-4 text-emerald-600" />
-                  Approve {pendingSelectedCount} pending ad{pendingSelectedCount === 1 ? "" : "s"}
+                  Approve {pendingSelectedCount} Pending Ad{pendingSelectedCount === 1 ? "" : "s"}
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem onClick={bulkFeature}>
-                <SparklesIcon className="size-4 text-amber-500" /> Bulk mark as featured
+                <SparklesIcon className="size-4 text-amber-500" /> Bulk Mark as Featured
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 variant="destructive"
                 onClick={() => setBulkDeleteOpen(true)}
               >
-                <Trash2Icon className="size-4" /> Bulk delete ({selectedCount})
+                <Trash2Icon className="size-4" /> Bulk Delete ({selectedCount})
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -479,7 +479,7 @@ export function AdsTable() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="postedDate">Date posted</SelectItem>
+                  <SelectItem value="postedDate">Date Posted</SelectItem>
                   <SelectItem value="price">Price</SelectItem>
                   <SelectItem value="views">Views</SelectItem>
                   <SelectItem value="title">Title</SelectItem>
@@ -496,10 +496,10 @@ export function AdsTable() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="desc">
-                    {sortField === "postedDate" ? "Newest first" : "High to low"}
+                    {sortField === "postedDate" ? "Newest First" : "High to Low"}
                   </SelectItem>
                   <SelectItem value="asc">
-                    {sortField === "postedDate" ? "Oldest first" : "Low to high"}
+                    {sortField === "postedDate" ? "Oldest First" : "Low to High"}
                   </SelectItem>
                 </SelectContent>
               </Select>

@@ -218,42 +218,60 @@ export const propertyTypes = [
 
 /** Matches platform countChoiceSchema: studio | 1..9+ */
 export const bedroomOptions = [
-  "studio",
-  "1",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9+",
+  { value: "studio", label: "Studio" },
+  { value: "1", label: "1 BHK" },
+  { value: "2", label: "2 BHK" },
+  { value: "3", label: "3 BHK" },
+  { value: "4", label: "4 BHK" },
+  { value: "5", label: "5 BHK" },
+  { value: "6", label: "6 BHK" },
+  { value: "7", label: "7 BHK" },
+  { value: "8", label: "8 BHK" },
+  { value: "9+", label: "9+ BHK" },
 ] as const
 
 export const bathroomOptions = ["1", "2", "3", "4", "5", "6", "7", "8", "9+"] as const
 
-/** Matches platform furnishingLabel(): yes → Furnished, partly → Partly furnished, no → Unfurnished */
+/** Matches platform furnishingLabel(): yes → Furnished, partly → Partly Furnished, no → Unfurnished */
 export const furnishingOptions = [
   { value: "yes", label: "Furnished" },
-  { value: "partly", label: "Partly furnished" },
+  { value: "partly", label: "Partly Furnished" },
   { value: "no", label: "Unfurnished" },
 ] as const
 
 export const listedByOptions: ListedBy[] = ["Landlord", "Agent"]
 
 /** Rent listings use daily/monthly/quarterly/yearly; sale listings use no payment period */
-export const rentPaymentMethods = ["daily", "monthly", "quarterly", "yearly"] as const
-export const paymentMethods = ["daily", "monthly", "quarterly", "yearly"] as const
+export const rentPaymentMethods = [
+  { value: "daily", label: "Daily" },
+  { value: "monthly", label: "Monthly" },
+  { value: "quarterly", label: "Quarterly" },
+  { value: "yearly", label: "Yearly" },
+] as const
+
+export const paymentMethods = [
+  { value: "daily", label: "Daily" },
+  { value: "monthly", label: "Monthly" },
+  { value: "quarterly", label: "Quarterly" },
+  { value: "yearly", label: "Yearly" },
+] as const
+
+export const paymentMethodLabels: Record<string, string> = {
+  daily: "Daily",
+  monthly: "Monthly",
+  quarterly: "Quarterly",
+  yearly: "Yearly",
+}
 
 export const projectStatusOptions = [
   { value: "ready", label: "Ready" },
-  { value: "under-construction", label: "Under construction" },
+  { value: "under-construction", label: "Under Construction" },
 ] as const
 
 /** Amenities for apartments/villas/house — matches platform houseVilla & apartment groups */
 export const availableAmenities = [
   "pool",
-  "Houses",
+  "gym",
   "parking",
   "elevator",
   "garden",
@@ -268,7 +286,7 @@ export const availableAmenities = [
 
 export const amenityLabels: Record<string, string> = {
   "pool": "Pool",
-  "Houses": "Houses",
+  "gym": "Gym",
   "parking": "Parking",
   "elevator": "Elevator",
   "garden": "Garden",
@@ -439,7 +457,7 @@ export const adsData: Ad[] = [
       furnishing: "no",
       projectStatus: "ready",
       priceNegotiable: true,
-      amenities: ["pool", "Houses", "parking", "balcony", "security", "elevator", "central-ac"],
+      amenities: ["pool", "gym", "parking", "balcony", "security", "elevator", "central-ac"],
       advancedFeatures: ["smart-home"],
       nearbyFacilities: ["Shops", "Masjid", "School"],
     },
@@ -624,7 +642,7 @@ export const adsData: Ad[] = [
       floorNumber: "14th Penthouse",
       furnishing: "yes",
       projectStatus: "ready",
-      amenities: ["pool", "Houses", "parking", "balcony", "security", "elevator", "maids-room"],
+      amenities: ["pool", "gym", "parking", "balcony", "security", "elevator", "maids-room"],
       advancedFeatures: ["smart-home", "private-pool"],
       nearbyFacilities: ["Beach", "Masjid", "Houses"],
     },
@@ -660,7 +678,7 @@ export const adsData: Ad[] = [
       area: 120,
       projectStatus: "under-construction",
       handoverBy: "Q4 2027",
-      amenities: ["pool", "Houses", "parking", "balcony", "security", "elevator"],
+      amenities: ["pool", "gym", "parking", "balcony", "security", "elevator"],
       advancedFeatures: ["smart-home"],
       nearbyFacilities: ["Beach", "Masjid", "School"],
     },
@@ -698,7 +716,7 @@ export const adsData: Ad[] = [
       furnishing: "yes",
       projectStatus: "ready",
       paymentMethod: "monthly",
-      amenities: ["pool", "Houses", "parking", "elevator", "central-ac"],
+      amenities: ["pool", "gym", "parking", "elevator", "central-ac"],
       nearbyFacilities: ["Shops", "Highway", "Masjid"],
     },
     description:
