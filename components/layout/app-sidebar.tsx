@@ -83,7 +83,8 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton
               size="lg"
-              className="pointer-events-none cursor-default"
+              className="cursor-default"
+              tooltip="developer@sketchmonk.com"
               render={<div />}
             >
               <Avatar size="sm">

@@ -79,7 +79,10 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
 }
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://zoqodeal.netlify.app"
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "ZOQO DEAL Super Admin",
   description: "Marketplace operations workspace — demo preview.",
   icons: {
@@ -88,6 +91,28 @@ export const metadata: Metadata = {
       { url: "/deal.png", type: "image/png" },
     ],
     apple: "/favicon.png",
+  },
+  openGraph: {
+    title: "ZOQO DEAL Super Admin",
+    description: "Marketplace operations workspace — demo preview.",
+    url: "/",
+    siteName: "ZOQO DEAL Super Admin",
+    images: [
+      {
+        url: "/deal.png",
+        width: 1200,
+        height: 630,
+        alt: "ZOQO DEAL",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ZOQO DEAL Super Admin",
+    description: "Marketplace operations workspace — demo preview.",
+    images: ["/deal.png"],
   },
 }
 

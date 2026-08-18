@@ -16,7 +16,6 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   FilterXIcon,
-  RotateCcwIcon,
   SearchIcon,
   SettingsIcon,
   SparklesIcon,
@@ -75,7 +74,6 @@ export function AdsTable() {
     deleteAds,
     toggleFeatured,
     toggleSold,
-    resetToDefault,
   } = useAdsStore()
 
   // Filter States
@@ -313,17 +311,6 @@ export function AdsTable() {
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => setAutoExpiryOpen(true)}>
             <SettingsIcon className="size-4" /> {t('pageHeader.autoExpirySettings')}
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              resetToDefault()
-              toast.info(t('pageHeader.resetToast'))
-            }}
-            title="Reset dataset to initial mock items"
-          >
-            <RotateCcwIcon className="size-3.5" /> {t('pageHeader.resetData')}
           </Button>
         </div>
       </div>
