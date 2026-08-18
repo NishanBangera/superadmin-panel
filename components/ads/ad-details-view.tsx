@@ -140,17 +140,18 @@ export function AdDetailsView({ adId }: { adId: string }) {
           <span className="font-mono text-foreground font-medium">{ad.id}</span>
         </div>
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
             <Button
               variant="outline"
               size="icon-sm"
               render={<Link href="/ads" />}
               aria-label="Back to ads"
+              className="shrink-0 mt-0.5 sm:mt-0"
             >
               <ArrowLeftIcon className="size-4" />
             </Button>
-            <div>
+            <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground">
                   {ad.title}
@@ -199,19 +200,20 @@ export function AdDetailsView({ adId }: { adId: string }) {
           </div>
 
           {/* Header Action Buttons */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
             {/* Show Approve and Reject ONLY when Pending */}
             {isPending && (
               <>
                 <Button
                   onClick={handleApprove}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium shrink-0"
                 >
                   <CheckIcon className="size-4" /> Approve Ad
                 </Button>
                 <Button
                   variant="destructive"
                   onClick={() => setRejectDialogOpen(true)}
+                  className="shrink-0"
                 >
                   <XIcon className="size-4" /> Reject Ad
                 </Button>
@@ -221,6 +223,7 @@ export function AdDetailsView({ adId }: { adId: string }) {
             <Button
               variant="outline"
               render={<Link href={`/ads/${ad.id}/edit`} />}
+              className="shrink-0"
             >
               <EditIcon className="size-4" /> Edit Listing
             </Button>
@@ -229,7 +232,7 @@ export function AdDetailsView({ adId }: { adId: string }) {
               variant="outline"
               size="icon"
               onClick={() => setDeleteDialogOpen(true)}
-              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive shrink-0"
               aria-label="Delete ad"
             >
               <Trash2Icon className="size-4" />

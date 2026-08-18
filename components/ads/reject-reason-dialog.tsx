@@ -29,14 +29,14 @@ function RejectReasonForm({
   return (
     <>
       <DialogHeader>
-        <DialogTitle>Reject ad</DialogTitle>
+        <DialogTitle>Reject Ad</DialogTitle>
         <DialogDescription>
           Rejecting <span className="font-medium text-foreground">{ad.title}</span> ({ad.id}).
         </DialogDescription>
       </DialogHeader>
 
       <Field>
-        <FieldLabel htmlFor="reject-reason">Rejection reason</FieldLabel>
+        <FieldLabel htmlFor="reject-reason">Rejection Reason</FieldLabel>
         <Textarea
           id="reject-reason"
           value={reason}
@@ -59,7 +59,7 @@ function RejectReasonForm({
           disabled={!reason.trim()}
           onClick={() => onConfirm(ad, reason.trim())}
         >
-          Reject ad
+          Reject Ad
         </Button>
       </DialogFooter>
     </>

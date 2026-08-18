@@ -76,7 +76,7 @@ export const categories = [
   "Apartments",
   "Villas",
   "Land",
-  "Commercial properties",
+  "Commercial Properties",
   "Studios",
   "Chalets",
   "Farms",

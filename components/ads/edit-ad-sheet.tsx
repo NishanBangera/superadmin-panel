@@ -83,7 +83,7 @@ function EditAdForm({
               }
             >
               <SelectTrigger id="edit-category" className="w-full">
-                <SelectValue />
+                <SelectValue>{form.category}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {categories.map((c) => (
@@ -103,7 +103,7 @@ function EditAdForm({
               }
             >
               <SelectTrigger id="edit-status" className="w-full">
-                <SelectValue />
+                <SelectValue>{form.status}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {statuses.map((s) => (

@@ -38,7 +38,7 @@ export function AutoExpirySettingsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Auto-expiry settings</DialogTitle>
+          <DialogTitle>Auto-Expiry Settings</DialogTitle>
           <DialogDescription>
             Automatically expire listings that haven&apos;t sold after a set
             number of days.
@@ -49,7 +49,7 @@ export function AutoExpirySettingsDialog({
           <Field orientation="horizontal">
             <div className="flex flex-1 flex-col gap-1">
               <FieldLabel htmlFor="auto-expiry-toggle">
-                Enable auto-expiry
+                Enable Auto-Expiry
               </FieldLabel>
               <FieldDescription>
                 When off, listings stay active until manually managed.
@@ -63,7 +63,7 @@ export function AutoExpirySettingsDialog({
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="default-days">Default expiry (days)</FieldLabel>
+            <FieldLabel htmlFor="default-days">Default Expiry (Days)</FieldLabel>
             <Input
               id="default-days"
               type="number"
@@ -75,7 +75,7 @@ export function AutoExpirySettingsDialog({
             />
           </Field>
 
-          <FieldSeparator>Per-category overrides</FieldSeparator>
+          <FieldSeparator>Per-Category Overrides</FieldSeparator>
 
           <div className="flex flex-col gap-2">
             {overrides.map((row, index) => (

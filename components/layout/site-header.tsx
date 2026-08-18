@@ -40,64 +40,66 @@ export function SiteHeader() {
   const current = navItems.find((item) => item.href === pathname)
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b bg-background/95 px-4 backdrop-blur supports-backdrop-filter:bg-background/60">
-      <SidebarTrigger />
-      <Separator orientation="vertical" className="mr-1 h-4" />
-      <Breadcrumb>
-        <BreadcrumbList>
-          {pathname.startsWith("/ads") && pathname !== "/ads" ? (
-            <>
-              <BreadcrumbItem>
-                <BreadcrumbLink render={<Link href="/ads" />}>
-                  Ads Management
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              {pathname.endsWith("/edit") ? (
-                <>
-                  <BreadcrumbItem>
-                    <BreadcrumbLink
-                      render={
-                        <Link
-                          href={pathname.replace("/edit", "")}
-                          className="font-mono text-xs"
-                        />
-                      }
-                    >
+    <header className="sticky top-0 z-30 flex h-14 w-full min-w-0 shrink-0 items-center justify-between gap-2 border-b bg-background/95 px-3 sm:px-4 backdrop-blur supports-backdrop-filter:bg-background/60">
+      <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
+        <SidebarTrigger />
+        <Separator orientation="vertical" className="mr-1 h-4 shrink-0" />
+        <Breadcrumb className="min-w-0 truncate">
+          <BreadcrumbList className="flex-nowrap truncate">
+            {pathname.startsWith("/ads") && pathname !== "/ads" ? (
+              <>
+                <BreadcrumbItem className="shrink-0">
+                  <BreadcrumbLink render={<Link href="/ads" />}>
+                    Ads Management
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="shrink-0" />
+                {pathname.endsWith("/edit") ? (
+                  <>
+                    <BreadcrumbItem className="min-w-0 truncate">
+                      <BreadcrumbLink
+                        render={
+                          <Link
+                            href={pathname.replace("/edit", "")}
+                            className="font-mono text-xs truncate"
+                          />
+                        }
+                      >
+                        {pathname.split("/")[2]}
+                      </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator className="shrink-0" />
+                    <BreadcrumbItem className="shrink-0">
+                      <BreadcrumbPage className="font-medium text-foreground">
+                        Edit
+                      </BreadcrumbPage>
+                    </BreadcrumbItem>
+                  </>
+                ) : (
+                  <BreadcrumbItem className="min-w-0 truncate">
+                    <BreadcrumbPage className="font-mono text-xs font-medium text-foreground truncate">
                       {pathname.split("/")[2]}
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbPage className="font-medium text-foreground">
-                      Edit
                     </BreadcrumbPage>
                   </BreadcrumbItem>
-                </>
-              ) : (
-                <BreadcrumbItem>
-                  <BreadcrumbPage className="font-mono text-xs font-medium text-foreground">
-                    {pathname.split("/")[2]}
-                  </BreadcrumbPage>
-                </BreadcrumbItem>
-              )}
-            </>
-          ) : (
-            <BreadcrumbItem>
-              <BreadcrumbPage className="font-medium text-foreground">
-                {current?.title ?? "ZOQO DEAL"}
-              </BreadcrumbPage>
-            </BreadcrumbItem>
-          )}
-        </BreadcrumbList>
-      </Breadcrumb>
+                )}
+              </>
+            ) : (
+              <BreadcrumbItem className="min-w-0 truncate">
+                <BreadcrumbPage className="font-medium text-foreground truncate">
+                  {current?.title ?? "ZOQO DEAL"}
+                </BreadcrumbPage>
+              </BreadcrumbItem>
+            )}
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
 
-      <div className="ml-auto flex items-center gap-2">
-        <div className="relative hidden sm:block">
+      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div className="relative hidden md:block">
           <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search…"
-            className="h-8 w-56 pl-8"
+            className="h-8 w-36 lg:w-52 pl-8 text-xs"
             aria-label="Search"
           />
         </div>
@@ -108,7 +110,7 @@ export function SiteHeader() {
           <DropdownMenuTrigger
             render={
               <Button variant="ghost" size="icon-sm" className="relative">
-                <BellIcon />
+                <BellIcon className="size-4" />
                 <span className="absolute top-1 right-1 size-1.5 rounded-full bg-destructive" />
               </Button>
             }
@@ -147,25 +149,25 @@ export function SiteHeader() {
               <span className="text-sm font-medium text-foreground">
                 Super Admin
               </span>
-              <span className="font-normal text-muted-foreground">
+              <span className="font-normal text-xs text-muted-foreground">
                 developer@sketchmonk.com
               </span>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <UserIcon /> Profile
+              <UserIcon className="size-4" /> Profile
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <SettingsIcon /> Settings
+              <SettingsIcon className="size-4" /> Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem variant="destructive">
-              <LogOutIcon /> Log Out
+              <LogOutIcon className="size-4" /> Log Out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Badge variant="secondary" className="hidden md:inline-flex">
+        <Badge variant="secondary" className="hidden lg:inline-flex text-xs">
           Demo Preview
         </Badge>
       </div>

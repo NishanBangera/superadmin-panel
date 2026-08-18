@@ -24,7 +24,7 @@ export function DeleteAdDialog({
     <Dialog open={!!ad} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete this ad?</DialogTitle>
+          <DialogTitle>Delete This Ad?</DialogTitle>
           <DialogDescription>
             {ad ? (
               <>
@@ -40,7 +40,7 @@ export function DeleteAdDialog({
             Cancel
           </Button>
           <Button variant="destructive" onClick={() => ad && onConfirm(ad)}>
-            Delete ad
+            Delete Ad
           </Button>
         </DialogFooter>
       </DialogContent>

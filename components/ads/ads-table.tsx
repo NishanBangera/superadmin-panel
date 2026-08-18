@@ -62,6 +62,20 @@ import { BulkDeleteConfirmDialog } from "@/components/ads/bulk-delete-confirm-di
 import { AutoExpirySettingsDialog } from "@/components/ads/auto-expiry-settings-dialog"
 import { useAdsStore } from "@/components/ads/ads-store"
 
+const sortFieldLabels: Record<string, string> = {
+  postedDate: "Posted Date",
+  price: "Price",
+  views: "Views",
+  title: "Title",
+}
+
+const getSortDirectionLabel = (field: string, direction: "asc" | "desc"): string => {
+  if (field === "postedDate") {
+    return direction === "desc" ? "Newest First" : "Oldest First"
+  }
+  return direction === "desc" ? "High to Low" : "Low to High"
+}
+
 export function AdsTable() {
   const {
     ads,
@@ -179,8 +193,8 @@ export function AdsTable() {
       const matchesMaxPrice =
         parsedMaxPrice === null || isNaN(parsedMaxPrice) || ad.price <= parsedMaxPrice
 
-      // Featured Toggle
-      const matchesFeatured = !featuredOnly || ad.featured === true
+      // Featured
+      const matchesFeatured = !featuredOnly || ad.featured
 
       return (
         matchesQuery &&
@@ -193,11 +207,12 @@ export function AdsTable() {
       )
     })
 
-    // Custom Sorting
+    // Sort
     result.sort((a, b) => {
       let comparison = 0
       if (sortField === "postedDate") {
-        comparison = new Date(a.postedDate).getTime() - new Date(b.postedDate).getTime()
+        comparison =
+          new Date(a.postedDate).getTime() - new Date(b.postedDate).getTime()
       } else if (sortField === "price") {
         comparison = a.price - b.price
       } else if (sortField === "views") {
@@ -225,14 +240,19 @@ export function AdsTable() {
   const table = useReactTable({
     data: filteredData,
     columns,
-    state: { sorting, rowSelection, pagination },
-    getRowId: (row) => row.id,
+    state: {
+      pagination,
+      sorting,
+      rowSelection,
+    },
+    onPaginationChange: setPagination,
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
-    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    enableRowSelection: true,
+    getRowId: (row) => row.id,
   })
 
   const selectedRows = table.getSelectedRowModel().rows
@@ -282,7 +302,7 @@ export function AdsTable() {
   )
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 min-w-0">
       {/* Header Bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -295,7 +315,7 @@ export function AdsTable() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => setAutoExpiryOpen(true)}>
-            <SettingsIcon className="size-4" /> Auto-expiry settings
+            <SettingsIcon className="size-4" /> Auto-Expiry Settings
           </Button>
           <Button
             variant="ghost"
@@ -306,7 +326,7 @@ export function AdsTable() {
             }}
             title="Reset dataset to initial mock items"
           >
-            <RotateCcwIcon className="size-3.5" /> Reset data
+            <RotateCcwIcon className="size-3.5" /> Reset Data
           </Button>
         </div>
       </div>
@@ -338,7 +358,9 @@ export function AdsTable() {
             }}
           >
             <SelectTrigger className="w-full lg:w-40 h-9">
-              <SelectValue placeholder="All Statuses" />
+              <SelectValue>
+                {statusFilter === "all" ? "All Statuses" : statusFilter}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Statuses</SelectItem>
@@ -359,7 +381,9 @@ export function AdsTable() {
             }}
           >
             <SelectTrigger className="w-full lg:w-48 h-9">
-              <SelectValue placeholder="All Categories" />
+              <SelectValue>
+                {categoryFilter === "all" ? "All Categories" : categoryFilter}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Categories</SelectItem>
@@ -380,7 +404,9 @@ export function AdsTable() {
             }}
           >
             <SelectTrigger className="w-full lg:w-44 h-9">
-              <SelectValue placeholder="All Posting Types" />
+              <SelectValue>
+                {postingTypeFilter === "all" ? "All Posting Types" : postingTypeFilter}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Posting Types</SelectItem>
@@ -425,7 +451,7 @@ export function AdsTable() {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                variant="destructive"
+                className="text-destructive"
                 onClick={() => setBulkDeleteOpen(true)}
               >
                 <Trash2Icon className="size-4" /> Bulk Delete ({selectedCount})
@@ -476,10 +502,10 @@ export function AdsTable() {
                 onValueChange={(val) => val && setSortField(val)}
               >
                 <SelectTrigger className="h-8 w-32 text-xs">
-                  <SelectValue />
+                  <SelectValue>{sortFieldLabels[sortField] || "Posted Date"}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="postedDate">Date Posted</SelectItem>
+                  <SelectItem value="postedDate">Posted Date</SelectItem>
                   <SelectItem value="price">Price</SelectItem>
                   <SelectItem value="views">Views</SelectItem>
                   <SelectItem value="title">Title</SelectItem>
@@ -491,8 +517,8 @@ export function AdsTable() {
                   val && setSortDirection(val as "asc" | "desc")
                 }
               >
-                <SelectTrigger className="h-8 w-28 text-xs">
-                  <SelectValue />
+                <SelectTrigger className="h-8 w-32 text-xs">
+                  <SelectValue>{getSortDirectionLabel(sortField, sortDirection)}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="desc">
@@ -521,7 +547,7 @@ export function AdsTable() {
                 htmlFor="featured-filter-toggle"
                 className="text-xs font-medium cursor-pointer text-foreground select-none"
               >
-                Featured only
+                Featured Only
               </label>
             </div>
           </div>
@@ -534,14 +560,14 @@ export function AdsTable() {
               onClick={resetAllFilters}
               className="h-8 text-xs text-muted-foreground hover:text-foreground"
             >
-              <FilterXIcon className="size-3.5" /> Clear filters
+              <FilterXIcon className="size-3.5" /> Clear Filters
             </Button>
           )}
         </div>
       </div>
 
       {/* Table Container */}
-      <div className="overflow-hidden rounded-xl ring-1 ring-foreground/10 bg-card shadow-xs">
+      <div className="w-full overflow-x-auto rounded-xl ring-1 ring-foreground/10 bg-card shadow-xs">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

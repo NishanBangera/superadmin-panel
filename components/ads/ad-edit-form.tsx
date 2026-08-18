@@ -52,6 +52,7 @@ import {
   nearbyFacilitiesList,
   nearbyFacilitiesLabels,
   paymentMethods,
+  paymentMethodLabels,
   postingTypes,
   projectStatusOptions,
   propertyTypes,
@@ -367,7 +368,7 @@ export function AdEditForm({ adId }: { adId: string }) {
                     }}
                   >
                     <SelectTrigger id="ad-category" className="w-full">
-                      <SelectValue />
+                      <SelectValue>{form.category || "Select Category"}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((c) => (
@@ -406,7 +407,7 @@ export function AdEditForm({ adId }: { adId: string }) {
                     }}
                   >
                     <SelectTrigger id="ad-postingType" className="w-full">
-                      <SelectValue />
+                      <SelectValue>{form.postingType || "For Sale"}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {postingTypes.map((pt) => (
@@ -449,7 +450,9 @@ export function AdEditForm({ adId }: { adId: string }) {
                     }}
                   >
                     <SelectTrigger id="re-payment" className="w-full">
-                      <SelectValue />
+                      <SelectValue>
+                        {paymentMethodLabels[form.propertyDetails.paymentMethod || "monthly"] || "Monthly"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {paymentMethods.map((pm) => (
@@ -509,7 +512,7 @@ export function AdEditForm({ adId }: { adId: string }) {
                     }}
                   >
                     <SelectTrigger id="re-propType" className="w-full">
-                      <SelectValue />
+                      <SelectValue>{form.propertyDetails.propertyType || "Apartment"}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {propertyTypes.map((pt) => (
@@ -538,7 +541,9 @@ export function AdEditForm({ adId }: { adId: string }) {
                     }}
                   >
                     <SelectTrigger id="re-bedrooms" className="w-full">
-                      <SelectValue />
+                      <SelectValue>
+                        {bedroomOptions.find((b) => b.value === form.propertyDetails.bedrooms)?.label || form.propertyDetails.bedrooms || "2 BHK"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {bedroomOptions.map((opt) => (
@@ -627,7 +632,9 @@ export function AdEditForm({ adId }: { adId: string }) {
                     }}
                   >
                     <SelectTrigger id="re-furnishing" className="w-full">
-                      <SelectValue />
+                      <SelectValue>
+                        {furnishingOptions.find((f) => f.value === form.propertyDetails.furnishing)?.label || "Unfurnished"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {furnishingOptions.map((f) => (
@@ -676,7 +683,9 @@ export function AdEditForm({ adId }: { adId: string }) {
                     }}
                   >
                     <SelectTrigger id="re-completion" className="w-full">
-                      <SelectValue />
+                      <SelectValue>
+                        {projectStatusOptions.find((p) => p.value === form.propertyDetails.projectStatus)?.label || "Ready"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {projectStatusOptions.map((opt) => (
@@ -852,7 +861,7 @@ export function AdEditForm({ adId }: { adId: string }) {
                   }}
                 >
                   <SelectTrigger id="ad-status" className="w-full">
-                    <SelectValue />
+                    <SelectValue>{form.status || "Pending"}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {statuses.map((s) => (
@@ -958,7 +967,7 @@ export function AdEditForm({ adId }: { adId: string }) {
                   }}
                 >
                   <SelectTrigger id="loc-governorate" className="w-full">
-                    <SelectValue />
+                    <SelectValue>{form.governorate || "Select Governorate"}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {governorates.map((g) => (
@@ -980,7 +989,7 @@ export function AdEditForm({ adId }: { adId: string }) {
                     }}
                   >
                     <SelectTrigger id="loc-city" className="w-full">
-                      <SelectValue />
+                      <SelectValue>{form.city || "Select Area"}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {availableCities.map((c) => (

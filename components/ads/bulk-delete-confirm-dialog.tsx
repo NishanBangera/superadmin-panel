@@ -30,7 +30,7 @@ export function BulkDeleteConfirmDialog({
             <div className="flex size-9 items-center justify-center rounded-full bg-destructive/10 text-destructive">
               <AlertTriangleIcon className="size-5" />
             </div>
-            <DialogTitle>Delete {count} selected ads?</DialogTitle>
+            <DialogTitle>Delete {count} Selected Ads?</DialogTitle>
           </div>
           <DialogDescription className="pt-2">
             You are about to permanently delete{" "}
@@ -52,7 +52,7 @@ export function BulkDeleteConfirmDialog({
               onOpenChange(false)
             }}
           >
-            Delete {count} {count === 1 ? "ad" : "ads"}
+            Delete {count} {count === 1 ? "Ad" : "Ads"}
           </Button>
         </DialogFooter>
       </DialogContent>
