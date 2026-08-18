@@ -10,14 +10,25 @@ import {
   ImageIcon,
   InfoIcon,
   KeyIcon,
+  LinkIcon,
   MapPinIcon,
   PlusIcon,
   SaveIcon,
   SparklesIcon,
   Trash2Icon,
+  UploadCloudIcon,
 } from "lucide-react"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -136,6 +147,9 @@ export function AdEditForm({ adId }: { adId: string }) {
     ad ? initFormState(ad) : null
   )
   const [newImageUrl, setNewImageUrl] = React.useState("")
+  const [isDragging, setIsDragging] = React.useState(false)
+  const [showUrlInput, setShowUrlInput] = React.useState(false)
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null)
 
   React.useEffect(() => {
     if (ad && !form) {
@@ -256,6 +270,70 @@ export function AdEditForm({ adId }: { adId: string }) {
     })
   }
 
+  const processFiles = (files: FileList | File[]) => {
+    const validImageFiles = Array.from(files).filter((file) =>
+      file.type.startsWith("image/")
+    )
+
+    if (validImageFiles.length === 0) {
+      toast.error("Please select valid image files (JPG, PNG, WebP)")
+      return
+    }
+
+    const readers = validImageFiles.map((file) => {
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          if (typeof reader.result === "string") {
+            resolve(reader.result)
+          }
+        }
+        reader.readAsDataURL(file)
+      })
+    })
+
+    Promise.all(readers).then((dataUrls) => {
+      setForm((prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          images: [...prev.images, ...dataUrls],
+        }
+      })
+      toast.success(
+        `${dataUrls.length} ${dataUrls.length === 1 ? "photo" : "photos"} added to listing`
+      )
+    })
+  }
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      processFiles(e.target.files)
+      e.target.value = ""
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFiles(e.dataTransfer.files)
+    }
+  }
+
   const handleAddImage = () => {
     if (!newImageUrl.trim()) return
     setForm((prev) => {
@@ -277,6 +355,38 @@ export function AdEditForm({ adId }: { adId: string }) {
         images: prev.images.filter((_, idx) => idx !== index),
       }
     })
+    toast.success("Photo removed")
+  }
+
+  const handleMoveImage = (index: number, direction: -1 | 1) => {
+    setForm((prev) => {
+      if (!prev) return prev
+      const newImages = [...prev.images]
+      const targetIndex = index + direction
+      if (targetIndex < 0 || targetIndex >= newImages.length) return prev
+      const temp = newImages[index]
+      newImages[index] = newImages[targetIndex]
+      newImages[targetIndex] = temp
+      return {
+        ...prev,
+        images: newImages,
+      }
+    })
+  }
+
+  const handleSetCover = (index: number) => {
+    if (index === 0) return
+    setForm((prev) => {
+      if (!prev) return prev
+      const newImages = [...prev.images]
+      const [chosen] = newImages.splice(index, 1)
+      newImages.unshift(chosen)
+      return {
+        ...prev,
+        images: newImages,
+      }
+    })
+    toast.success("Cover photo updated")
   }
 
   const availableCities = citiesByGovernorate[form.governorate] || []
@@ -284,18 +394,35 @@ export function AdEditForm({ adId }: { adId: string }) {
   return (
     <form onSubmit={handleSave} className="flex flex-col gap-6 max-w-7xl mx-auto pb-16">
       {/* Header & Sticky Actions */}
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Link href="/ads" className="hover:text-foreground">
-            Ads Management
-          </Link>
-          <span>/</span>
-          <Link href={`/ads/${ad.id}`} className="hover:text-foreground font-mono">
-            {ad.id}
-          </Link>
-          <span>/</span>
-          <span className="text-foreground font-medium">Edit</span>
-        </div>
+      <div className="flex flex-col gap-3">
+        <Breadcrumb>
+          <BreadcrumbList className="text-sm font-medium">
+            <BreadcrumbItem>
+              <BreadcrumbLink render={<Link href="/ads" />}>
+                Ads Management
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink
+                render={
+                  <Link
+                    href={`/ads/${ad.id}`}
+                    className="font-mono"
+                  />
+                }
+              >
+                {ad.id}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage className="font-medium text-foreground">
+                Edit
+              </BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
@@ -1022,59 +1149,191 @@ export function AdEditForm({ adId }: { adId: string }) {
             </CardContent>
           </Card>
 
-          {/* Image URLs Gallery Manager */}
+          {/* Photo Gallery & Upload Dropzone */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <ImageIcon className="size-4 text-primary" /> Photos ({form.images.length})
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <ImageIcon className="size-4 text-primary" /> Photos ({form.images.length})
+                </CardTitle>
+                {form.images.length > 0 && (
+                  <span className="text-[11px] text-muted-foreground">
+                    First photo is cover
+                  </span>
+                )}
+              </div>
+              <CardDescription className="text-xs">
+                Upload listing photos or drag and drop files from your device.
+              </CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-col gap-3">
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Paste image URL…"
-                  value={newImageUrl}
-                  onChange={(e) => setNewImageUrl(e.target.value)}
-                  className="text-xs"
-                />
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={handleAddImage}
-                >
-                  <PlusIcon className="size-3.5" /> Add
-                </Button>
+            <CardContent className="flex flex-col gap-3.5">
+              {/* Hidden File Input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileInputChange}
+              />
+
+              {/* Drag and Drop Zone */}
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+                className={cn(
+                  "flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-5 text-center cursor-pointer transition-all select-none",
+                  isDragging
+                    ? "border-primary bg-primary/10 scale-[0.99]"
+                    : "border-muted-foreground/25 bg-muted/20 hover:border-primary/50 hover:bg-muted/40"
+                )}
+              >
+                <div className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <UploadCloudIcon className="size-5" />
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <p className="text-xs font-medium text-foreground">
+                    <span className="text-primary font-semibold hover:underline">Click to browse</span> or drag & drop
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    PNG, JPG, WebP, or SVG (multiple files supported)
+                  </p>
+                </div>
               </div>
 
-              {form.images.length > 0 && (
-                <div className="flex flex-col gap-2 pt-1 max-h-60 overflow-y-auto">
-                  {form.images.map((img, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center justify-between gap-2 rounded-lg border bg-muted/40 p-1.5 text-xs"
+              {/* Secondary URL toggle */}
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowUrlInput(!showUrlInput)}
+                  className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 self-start transition-colors cursor-pointer"
+                >
+                  <LinkIcon className="size-3.5" />
+                  {showUrlInput ? "Hide URL input" : "Or add photo by image URL"}
+                </button>
+
+                {showUrlInput && (
+                  <div className="flex gap-2 pt-0.5">
+                    <Input
+                      placeholder="Paste image URL (https://…)"
+                      value={newImageUrl}
+                      onChange={(e) => setNewImageUrl(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault()
+                          handleAddImage()
+                        }
+                      }}
+                      className="text-xs h-8"
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={handleAddImage}
+                      className="shrink-0 h-8"
                     >
-                      <div className="flex items-center gap-2 min-w-0">
+                      <PlusIcon className="size-3.5 mr-1" /> Add
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Photos Grid Preview */}
+              {form.images.length > 0 && (
+                <div className="flex flex-col gap-2 pt-1">
+                  <Separator />
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-72 overflow-y-auto pr-0.5">
+                    {form.images.map((img, idx) => (
+                      <div
+                        key={idx}
+                        className={cn(
+                          "group relative aspect-4/3 rounded-lg overflow-hidden border bg-muted/40 transition-all",
+                          idx === 0 ? "ring-2 ring-primary ring-offset-1" : ""
+                        )}
+                      >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={img}
-                          alt=""
-                          className="size-8 rounded object-cover shrink-0"
+                          alt={`Photo ${idx + 1}`}
+                          className="size-full object-cover"
                         />
-                        <span className="truncate max-w-40 text-muted-foreground">
-                          {img}
-                        </span>
+
+                        {/* Cover badge */}
+                        {idx === 0 && (
+                          <span className="absolute top-1.5 left-1.5 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground shadow-xs">
+                            Cover
+                          </span>
+                        )}
+
+                        {/* Action Toolbar on Hover */}
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-white/90 font-medium px-1">
+                              #{idx + 1}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleRemoveImage(idx)
+                              }}
+                              className="size-6 rounded bg-destructive/90 hover:bg-destructive text-white flex items-center justify-center transition-colors cursor-pointer"
+                              title="Remove photo"
+                            >
+                              <Trash2Icon className="size-3.5" />
+                            </button>
+                          </div>
+
+                          <div className="flex items-center justify-between gap-1">
+                            <div className="flex gap-1">
+                              {idx > 0 && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleMoveImage(idx, -1)
+                                  }}
+                                  className="size-5 rounded bg-white/20 hover:bg-white/40 text-white flex items-center justify-center text-[10px] cursor-pointer"
+                                  title="Move left"
+                                >
+                                  ←
+                                </button>
+                              )}
+                              {idx < form.images.length - 1 && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleMoveImage(idx, 1)
+                                  }}
+                                  className="size-5 rounded bg-white/20 hover:bg-white/40 text-white flex items-center justify-center text-[10px] cursor-pointer"
+                                  title="Move right"
+                                >
+                                  →
+                                </button>
+                              )}
+                            </div>
+                            {idx !== 0 && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleSetCover(idx)
+                                }}
+                                className="text-[10px] font-medium text-white bg-white/25 hover:bg-white/40 px-1.5 py-0.5 rounded transition-colors cursor-pointer"
+                                title="Set as primary cover photo"
+                              >
+                                Set Cover
+                              </button>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveImage(idx)}
-                        className="text-destructive hover:opacity-80 p-1 cursor-pointer"
-                        title="Remove photo"
-                      >
-                        <Trash2Icon className="size-3.5" />
-                      </button>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               )}
             </CardContent>

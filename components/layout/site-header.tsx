@@ -5,14 +5,6 @@ import { usePathname } from "next/navigation"
 import { BellIcon, LogOutIcon, SearchIcon, SettingsIcon, UserIcon } from "lucide-react"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -37,61 +29,20 @@ const notifications = [
 
 export function SiteHeader() {
   const pathname = usePathname()
-  const current = navItems.find((item) => item.href === pathname)
+  const current = navItems.find((item) =>
+    item.href === "/"
+      ? pathname === "/"
+      : pathname.startsWith(item.href)
+  )
 
   return (
     <header className="sticky top-0 z-30 flex h-14 w-full min-w-0 shrink-0 items-center justify-between gap-2 border-b bg-background/95 px-3 sm:px-4 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
-        <SidebarTrigger />
-        <Separator orientation="vertical" className="mr-1 h-4 shrink-0" />
-        <Breadcrumb className="min-w-0 truncate">
-          <BreadcrumbList className="flex-nowrap truncate">
-            {pathname.startsWith("/ads") && pathname !== "/ads" ? (
-              <>
-                <BreadcrumbItem className="shrink-0">
-                  <BreadcrumbLink render={<Link href="/ads" />}>
-                    Ads Management
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="shrink-0" />
-                {pathname.endsWith("/edit") ? (
-                  <>
-                    <BreadcrumbItem className="min-w-0 truncate">
-                      <BreadcrumbLink
-                        render={
-                          <Link
-                            href={pathname.replace("/edit", "")}
-                            className="font-mono text-xs truncate"
-                          />
-                        }
-                      >
-                        {pathname.split("/")[2]}
-                      </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator className="shrink-0" />
-                    <BreadcrumbItem className="shrink-0">
-                      <BreadcrumbPage className="font-medium text-foreground">
-                        Edit
-                      </BreadcrumbPage>
-                    </BreadcrumbItem>
-                  </>
-                ) : (
-                  <BreadcrumbItem className="min-w-0 truncate">
-                    <BreadcrumbPage className="font-mono text-xs font-medium text-foreground truncate">
-                      {pathname.split("/")[2]}
-                    </BreadcrumbPage>
-                  </BreadcrumbItem>
-                )}
-              </>
-            ) : (
-              <BreadcrumbItem className="min-w-0 truncate">
-                <BreadcrumbPage className="font-medium text-foreground truncate">
-                  {current?.title ?? "ZOQO DEAL"}
-                </BreadcrumbPage>
-              </BreadcrumbItem>
-            )}
-          </BreadcrumbList>
-        </Breadcrumb>
+        <SidebarTrigger className="-ml-1" />
+        <Separator orientation="vertical" className="h-4" />
+        <h2 className="font-heading text-sm font-semibold tracking-tight text-foreground truncate">
+          {current?.title ?? "ZOQO DEAL Super Admin"}
+        </h2>
       </div>
 
       <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">

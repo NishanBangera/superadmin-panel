@@ -13,6 +13,13 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "ZOQO DEAL Super Admin",
   description: "Marketplace operations workspace — demo preview.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon.png", type: "image/png" },
+    ],
+    apple: "/favicon.png",
+  },
 }
 
 export default function RootLayout({

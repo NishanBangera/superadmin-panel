@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -28,17 +29,24 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton
               size="lg"
-              className="pointer-events-none cursor-default"
-              render={<div />}
+              className="hover:bg-sidebar-accent transition-colors cursor-pointer"
+              render={<Link href="/dashboard" />}
             >
-              <div className="flex aspect-square size-8 shrink-0 items-center justify-center rounded-md bg-sidebar-primary text-sm font-semibold text-sidebar-primary-foreground">
-                Z
+              <div className="flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg overflow-hidden bg-white/95 p-1 shadow-xs ring-1 ring-border/50">
+                <Image
+                  src="/favicon.png"
+                  alt="ZOQO DEAL"
+                  width={24}
+                  height={24}
+                  priority
+                  className="size-full object-contain"
+                />
               </div>
               <div className="grid flex-1 text-left leading-tight">
-                <span className="truncate font-heading text-sm font-semibold">
+                <span className="truncate font-heading text-sm font-semibold tracking-tight text-sidebar-foreground">
                   ZOQO DEAL
                 </span>
-                <span className="truncate text-xs text-sidebar-foreground/60">
+                <span className="truncate text-[11px] font-medium text-sidebar-foreground/60">
                   Super Admin
                 </span>
               </div>

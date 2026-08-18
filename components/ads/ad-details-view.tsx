@@ -33,6 +33,14 @@ import { toast } from "sonner"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -131,14 +139,22 @@ export function AdDetailsView({ adId }: { adId: string }) {
   return (
     <div className="flex flex-col gap-6 max-w-7xl mx-auto pb-12">
       {/* Top Header & Navigation */}
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Link href="/ads" className="hover:text-foreground transition-colors">
-            Ads Management
-          </Link>
-          <span>/</span>
-          <span className="font-mono text-foreground font-medium">{ad.id}</span>
-        </div>
+      <div className="flex flex-col gap-3">
+        <Breadcrumb>
+          <BreadcrumbList className="text-sm font-medium">
+            <BreadcrumbItem>
+              <BreadcrumbLink render={<Link href="/ads" />}>
+                Ads Management
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage className="font-mono text-sm font-semibold text-foreground">
+                {ad.id}
+              </BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
