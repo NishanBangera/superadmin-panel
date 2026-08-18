@@ -9,6 +9,7 @@ import {
   useReactTable,
   type SortingState,
 } from "@tanstack/react-table"
+import { useTranslations, useLocale } from "next-intl"
 import {
   ArrowDownUpIcon,
   ChevronDownIcon,
@@ -62,21 +63,9 @@ import { BulkDeleteConfirmDialog } from "@/components/ads/bulk-delete-confirm-di
 import { AutoExpirySettingsDialog } from "@/components/ads/auto-expiry-settings-dialog"
 import { useAdsStore } from "@/components/ads/ads-store"
 
-const sortFieldLabels: Record<string, string> = {
-  postedDate: "Posted Date",
-  price: "Price",
-  views: "Views",
-  title: "Title",
-}
-
-const getSortDirectionLabel = (field: string, direction: "asc" | "desc"): string => {
-  if (field === "postedDate") {
-    return direction === "desc" ? "Newest First" : "Oldest First"
-  }
-  return direction === "desc" ? "High to Low" : "Low to High"
-}
-
 export function AdsTable() {
+  const t = useTranslations('ads')
+  const locale = useLocale()
   const {
     ads,
     updateAd,
@@ -111,31 +100,45 @@ export function AdsTable() {
   const [bulkDeleteOpen, setBulkDeleteOpen] = React.useState(false)
   const [autoExpiryOpen, setAutoExpiryOpen] = React.useState(false)
 
+  const sortFieldLabels: Record<string, string> = {
+    postedDate: t('sort.postedDate'),
+    price: t('sort.price'),
+    views: t('sort.views'),
+    title: t('sort.title'),
+  }
+
+  const getSortDirectionLabel = (field: string, direction: "asc" | "desc"): string => {
+    if (field === "postedDate") {
+      return direction === "desc" ? t('sort.newestFirst') : t('sort.oldestFirst')
+    }
+    return direction === "desc" ? t('sort.highToLow') : t('sort.lowToHigh')
+  }
+
   const handlers = React.useMemo(
     () => ({
       onApprove: (ad: Ad) => {
         approveAd(ad.id)
-        toast.success(`${ad.id} approved`, { description: ad.title })
+        toast.success(t('toasts.approved', { id: ad.id }), { description: ad.title })
       },
       onReject: (ad: Ad) => setRejectTarget(ad),
       onDelete: (ad: Ad) => setDeleteTarget(ad),
       onToggleFeatured: (ad: Ad, value: boolean) => {
         toggleFeatured(ad.id, value)
         toast.success(
-          value ? `${ad.id} marked as featured` : `${ad.id} removed from featured`
+          value ? t('toasts.markedFeatured', { id: ad.id }) : t('toasts.removedFeatured', { id: ad.id })
         )
       },
       onToggleSold: (ad: Ad, value: boolean) => {
         toggleSold(ad.id, value)
         toast.success(
-          value ? `${ad.id} marked as sold` : `${ad.id} marked as active`
+          value ? t('toasts.markedSold', { id: ad.id }) : t('toasts.markedActive', { id: ad.id })
         )
       },
     }),
-    [approveAd, toggleFeatured, toggleSold]
+    [approveAd, toggleFeatured, toggleSold, t]
   )
 
-  const columns = React.useMemo(() => getAdsColumns(handlers), [handlers])
+  const columns = React.useMemo(() => getAdsColumns(handlers, t, locale), [handlers, t, locale])
 
   const hasActiveFilters =
     search.trim() !== "" ||
@@ -269,26 +272,20 @@ export function AdsTable() {
   function bulkApprovePendingOnly() {
     if (pendingSelectedCount === 0) return
     pendingSelectedRows.forEach((r) => approveAd(r.original.id))
-    toast.success(
-      `${pendingSelectedCount} pending ad${pendingSelectedCount === 1 ? "" : "s"} approved`
-    )
+    toast.success(t('toasts.bulkApproved', { count: pendingSelectedCount }))
     clearSelection()
   }
 
   function bulkFeature() {
     selectedRows.forEach((r) => toggleFeatured(r.original.id, true))
-    toast.success(
-      `${selectedCount} ad${selectedCount === 1 ? "" : "s"} marked as featured`
-    )
+    toast.success(t('toasts.bulkFeatured', { count: selectedCount }))
     clearSelection()
   }
 
   function handleConfirmBulkDelete() {
     const ids = selectedRows.map((r) => r.original.id)
     deleteAds(ids)
-    toast.success(
-      `${selectedCount} ad${selectedCount === 1 ? "" : "s"} permanently deleted`
-    )
+    toast.success(t('toasts.bulkDeleted', { count: selectedCount }))
     clearSelection()
   }
 
@@ -307,26 +304,26 @@ export function AdsTable() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-heading text-2xl font-semibold tracking-tight">
-            Ads Management
+            {t('pageHeader.title')}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Review, moderate, filter, and manage listings on the marketplace.
+            {t('pageHeader.description')}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => setAutoExpiryOpen(true)}>
-            <SettingsIcon className="size-4" /> Auto-Expiry Settings
+            <SettingsIcon className="size-4" /> {t('pageHeader.autoExpirySettings')}
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => {
               resetToDefault()
-              toast.info("Demo data reset to initial catalog")
+              toast.info(t('pageHeader.resetToast'))
             }}
             title="Reset dataset to initial mock items"
           >
-            <RotateCcwIcon className="size-3.5" /> Reset Data
+            <RotateCcwIcon className="size-3.5" /> {t('pageHeader.resetData')}
           </Button>
         </div>
       </div>
@@ -337,15 +334,15 @@ export function AdsTable() {
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
           {/* Search */}
           <div className="relative flex-1">
-            <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <SearchIcon className="pointer-events-none absolute top-1/2 start-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value)
                 setPagination((prev) => ({ ...prev, pageIndex: 0 }))
               }}
-              placeholder="Search by title, seller, ID, location…"
-              className="h-9 pl-9"
+              placeholder={t('filters.searchPlaceholder')}
+              className="h-9 ps-9"
             />
           </div>
 
@@ -359,11 +356,11 @@ export function AdsTable() {
           >
             <SelectTrigger className="w-full lg:w-40 h-9">
               <SelectValue>
-                {statusFilter === "all" ? "All Statuses" : statusFilter}
+                {statusFilter === "all" ? t('filters.allStatuses') : statusFilter}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="all">{t('filters.allStatuses')}</SelectItem>
               {statuses.map((s) => (
                 <SelectItem key={s} value={s}>
                   {s}
@@ -382,11 +379,11 @@ export function AdsTable() {
           >
             <SelectTrigger className="w-full lg:w-48 h-9">
               <SelectValue>
-                {categoryFilter === "all" ? "All Categories" : categoryFilter}
+                {categoryFilter === "all" ? t('filters.allCategories') : categoryFilter}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
+              <SelectItem value="all">{t('filters.allCategories')}</SelectItem>
               {categories.map((c) => (
                 <SelectItem key={c} value={c}>
                   {c}
@@ -405,11 +402,11 @@ export function AdsTable() {
           >
             <SelectTrigger className="w-full lg:w-44 h-9">
               <SelectValue>
-                {postingTypeFilter === "all" ? "All Posting Types" : postingTypeFilter}
+                {postingTypeFilter === "all" ? t('filters.allPostingTypes') : postingTypeFilter}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Posting Types</SelectItem>
+              <SelectItem value="all">{t('filters.allPostingTypes')}</SelectItem>
               {postingTypes.map((pt) => (
                 <SelectItem key={pt} value={pt}>
                   {pt}
@@ -428,9 +425,9 @@ export function AdsTable() {
                   className="h-9 shrink-0"
                   disabled={selectedCount === 0}
                 >
-                  Bulk Actions
+                  {t('bulkActions.label')}
                   {selectedCount > 0 && (
-                    <span className="ml-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
+                    <span className="ms-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
                       {selectedCount}
                     </span>
                   )}
@@ -443,18 +440,18 @@ export function AdsTable() {
               {pendingSelectedCount > 0 && (
                 <DropdownMenuItem onClick={bulkApprovePendingOnly}>
                   <SparklesIcon className="size-4 text-emerald-600" />
-                  Approve {pendingSelectedCount} Pending Ad{pendingSelectedCount === 1 ? "" : "s"}
+                  {t('bulkActions.approvePending', { count: pendingSelectedCount })}
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem onClick={bulkFeature}>
-                <SparklesIcon className="size-4 text-amber-500" /> Bulk Mark as Featured
+                <SparklesIcon className="size-4 text-amber-500" /> {t('bulkActions.markFeatured')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="text-destructive"
                 onClick={() => setBulkDeleteOpen(true)}
               >
-                <Trash2Icon className="size-4" /> Bulk Delete ({selectedCount})
+                <Trash2Icon className="size-4" /> {t('bulkActions.bulkDelete')} ({selectedCount})
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -465,11 +462,11 @@ export function AdsTable() {
           <div className="flex flex-wrap items-center gap-3">
             {/* Price Range Filter */}
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <span className="font-medium text-foreground">Price:</span>
+              <span className="font-medium text-foreground">{t('filters.priceLabel')}</span>
               <Input
                 type="number"
                 min={0}
-                placeholder="Min OMR"
+                placeholder={t('filters.minPlaceholder')}
                 value={minPrice}
                 onChange={(e) => {
                   setMinPrice(e.target.value)
@@ -481,7 +478,7 @@ export function AdsTable() {
               <Input
                 type="number"
                 min={0}
-                placeholder="Max OMR"
+                placeholder={t('filters.maxPlaceholder')}
                 value={maxPrice}
                 onChange={(e) => {
                   setMaxPrice(e.target.value)
@@ -496,19 +493,19 @@ export function AdsTable() {
             {/* Sort Field and Direction */}
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <ArrowDownUpIcon className="size-3.5" />
-              <span className="font-medium text-foreground">Sort:</span>
+              <span className="font-medium text-foreground">{t('sort.label')}</span>
               <Select
                 value={sortField}
                 onValueChange={(val) => val && setSortField(val)}
               >
                 <SelectTrigger className="h-8 w-32 text-xs">
-                  <SelectValue>{sortFieldLabels[sortField] || "Posted Date"}</SelectValue>
+                  <SelectValue>{sortFieldLabels[sortField] || t('sort.postedDate')}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="postedDate">Posted Date</SelectItem>
-                  <SelectItem value="price">Price</SelectItem>
-                  <SelectItem value="views">Views</SelectItem>
-                  <SelectItem value="title">Title</SelectItem>
+                  <SelectItem value="postedDate">{t('sort.postedDate')}</SelectItem>
+                  <SelectItem value="price">{t('sort.price')}</SelectItem>
+                  <SelectItem value="views">{t('sort.views')}</SelectItem>
+                  <SelectItem value="title">{t('sort.title')}</SelectItem>
                 </SelectContent>
               </Select>
               <Select
@@ -522,10 +519,10 @@ export function AdsTable() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="desc">
-                    {sortField === "postedDate" ? "Newest First" : "High to Low"}
+                    {sortField === "postedDate" ? t('sort.newestFirst') : t('sort.highToLow')}
                   </SelectItem>
                   <SelectItem value="asc">
-                    {sortField === "postedDate" ? "Oldest First" : "Low to High"}
+                    {sortField === "postedDate" ? t('sort.oldestFirst') : t('sort.lowToHigh')}
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -547,7 +544,7 @@ export function AdsTable() {
                 htmlFor="featured-filter-toggle"
                 className="text-xs font-medium cursor-pointer text-foreground select-none"
               >
-                Featured Only
+                {t('filters.featuredOnly')}
               </label>
             </div>
           </div>
@@ -560,7 +557,7 @@ export function AdsTable() {
               onClick={resetAllFilters}
               className="h-8 text-xs text-muted-foreground hover:text-foreground"
             >
-              <FilterXIcon className="size-3.5" /> Clear Filters
+              <FilterXIcon className="size-3.5" /> {t('filters.clearFilters')}
             </Button>
           )}
         </div>
@@ -577,9 +574,9 @@ export function AdsTable() {
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -607,9 +604,9 @@ export function AdsTable() {
                   className="h-36 text-center text-sm text-muted-foreground"
                 >
                   <div className="flex flex-col items-center justify-center gap-1.5 py-4">
-                    <p className="font-medium text-foreground">No ads match the current filters.</p>
+                    <p className="font-medium text-foreground">{t('emptyState.title')}</p>
                     <p className="text-xs text-muted-foreground">
-                      Try clearing or adjusting search terms and category filters.
+                      {t('emptyState.description')}
                     </p>
                     {hasActiveFilters && (
                       <Button
@@ -618,7 +615,7 @@ export function AdsTable() {
                         onClick={resetAllFilters}
                         className="mt-2"
                       >
-                        Reset all filters
+                        {t('emptyState.resetButton')}
                       </Button>
                     )}
                   </div>
@@ -634,13 +631,13 @@ export function AdsTable() {
         <div className="flex flex-wrap items-center gap-4">
           <p>
             {selectedCount > 0
-              ? `${selectedCount} of ${filteredData.length} row(s) selected.`
-              : `Showing ${startRowIndex}–${endRowIndex} of ${filteredData.length} listings.`}
+              ? t('pagination.selected', { count: selectedCount, total: filteredData.length })
+              : t('pagination.showing', { start: startRowIndex, end: endRowIndex, total: filteredData.length })}
           </p>
 
           {/* Items per page selector */}
           <div className="flex items-center gap-1.5">
-            <span>Rows per page:</span>
+            <span>{t('pagination.rowsPerPage')}</span>
             <Select
               value={String(pagination.pageSize)}
               onValueChange={(val) => {
@@ -668,8 +665,7 @@ export function AdsTable() {
         {/* Page navigation */}
         <div className="flex items-center gap-2">
           <span>
-            Page {table.getPageCount() === 0 ? 1 : pagination.pageIndex + 1} of{" "}
-            {Math.max(table.getPageCount(), 1)}
+            {t('pagination.pageOf', { current: table.getPageCount() === 0 ? 1 : pagination.pageIndex + 1, total: Math.max(table.getPageCount(), 1) })}
           </span>
           <Button
             variant="outline"
@@ -678,7 +674,7 @@ export function AdsTable() {
             disabled={!table.getCanPreviousPage()}
             aria-label="Previous page"
           >
-            <ChevronLeftIcon className="size-4" />
+            <ChevronLeftIcon className="size-4 rtl:rotate-180" />
           </Button>
           <Button
             variant="outline"
@@ -687,7 +683,7 @@ export function AdsTable() {
             disabled={!table.getCanNextPage()}
             aria-label="Next page"
           >
-            <ChevronRightIcon className="size-4" />
+            <ChevronRightIcon className="size-4 rtl:rotate-180" />
           </Button>
         </div>
       </div>
@@ -698,8 +694,8 @@ export function AdsTable() {
         onOpenChange={(open) => !open && setRejectTarget(null)}
         onConfirm={(ad, reason) => {
           rejectAd(ad.id, reason)
-          toast.success(`${ad.id} rejected`, {
-            description: "Reason recorded and notification sent.",
+          toast.success(t('toasts.rejected', { id: ad.id }), {
+            description: t('toasts.rejectedDescription'),
           })
           setRejectTarget(null)
         }}
@@ -710,7 +706,7 @@ export function AdsTable() {
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         onConfirm={(ad) => {
           deleteAd(ad.id)
-          toast.success(`${ad.id} deleted`)
+          toast.success(t('toasts.deleted', { id: ad.id }))
           setDeleteTarget(null)
         }}
       />

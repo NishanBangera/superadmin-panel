@@ -4,10 +4,14 @@ import { getRequestConfig } from "next-intl/server";
 import { routing, type AppLocale } from "@/i18n/routing";
 
 async function loadMessages(locale: AppLocale) {
-  const [common] = await Promise.all([import(`./${locale}/common.json`)]);
+  const [common, ads] = await Promise.all([
+    import(`./${locale}/common.json`),
+    import(`./${locale}/ads.json`).catch(() => ({ default: {} })),
+  ]);
 
   return {
     ...common.default,
+    ads: ads.default,
   };
 }
 

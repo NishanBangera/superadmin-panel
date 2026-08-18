@@ -390,7 +390,7 @@ function realEstateAd(
 export const adsData: Ad[] = [
   realEstateAd({
     id: "AD-10231",
-    title: "3BHK Sea-View Villa with Private Pool — Al Mouj",
+    title: "3BHK Sea-View Villa",
     category: "Villas",
     subcategory: "Residential Villas",
     postingType: "For Rent",
@@ -431,7 +431,7 @@ export const adsData: Ad[] = [
   }),
   realEstateAd({
     id: "AD-10232",
-    title: "Luxury 2BHK Apartment for Sale — Muscat Hills",
+    title: "Luxury 2BHK Apartment",
     category: "Apartments",
     subcategory: "Apartments for Sale",
     postingType: "For Sale",
@@ -470,7 +470,7 @@ export const adsData: Ad[] = [
   }),
   realEstateAd({
     id: "AD-10233",
-    title: "Prime Commercial Retail Shop — Muttrah Souq",
+    title: "Prime Retail Shop",
     category: "Commercial properties",
     subcategory: "Shops & Retail",
     postingType: "For Rent",
@@ -506,7 +506,7 @@ export const adsData: Ad[] = [
   }),
   realEstateAd({
     id: "AD-10234",
-    title: "Residential Land Plot 600 sqm — Al Ansab Phase 4",
+    title: "Residential Land Plot",
     category: "Land",
     subcategory: "Residential Land",
     postingType: "For Sale",
@@ -540,7 +540,7 @@ export const adsData: Ad[] = [
   }),
   realEstateAd({
     id: "AD-10235",
-    title: "Fully Furnished Studio Apartment — Ruwi High St",
+    title: "Furnished Studio Apartment",
     category: "Studios",
     subcategory: "Apartments for Rent",
     postingType: "For Rent",
@@ -577,7 +577,7 @@ export const adsData: Ad[] = [
   }),
   realEstateAd({
     id: "AD-10236",
-    title: "4BHK Modern Townhouse with Rooftop Terrace — Qurum 29",
+    title: "Modern 4BHK Townhouse",
     category: "Villas",
     subcategory: "Townhouses",
     postingType: "For Sale",
@@ -617,7 +617,7 @@ export const adsData: Ad[] = [
   }),
   realEstateAd({
     id: "AD-10237",
-    title: "Marina Penthouse with Private Infinity Pool — Jissah Bay",
+    title: "Luxury Marina Penthouse",
     category: "Villas",
     subcategory: "Penthouses",
     postingType: "For Sale",
@@ -654,7 +654,7 @@ export const adsData: Ad[] = [
   }),
   realEstateAd({
     id: "AD-10238",
-    title: "Seafront Off-Plan Luxury Residences — Sur Waves Project",
+    title: "Seafront Luxury Residences",
     category: "Projects",
     subcategory: "New Developments",
     postingType: "Projects",
@@ -690,7 +690,7 @@ export const adsData: Ad[] = [
   }),
   realEstateAd({
     id: "AD-10239",
-    title: "1BHK Apartment with Balcony for Rent — Al Khuwair",
+    title: "Modern 1BHK Apartment",
     category: "Apartments",
     subcategory: "Apartments for Rent",
     postingType: "For Rent",
@@ -727,7 +727,7 @@ export const adsData: Ad[] = [
   }),
   realEstateAd({
     id: "AD-10240",
-    title: "Modern Fitted Corporate Office Space — Azaiba Commercial",
+    title: "Corporate Office Space",
     category: "Commercial properties",
     subcategory: "Offices",
     postingType: "For Rent",
@@ -763,7 +763,7 @@ export const adsData: Ad[] = [
   }),
   realEstateAd({
     id: "AD-10241",
-    title: "Chalet with Private Beach & Garden — Salalah Beach",
+    title: "Beachfront Chalet",
     category: "Chalets",
     subcategory: "Chalets & Holiday Homes",
     postingType: "For Sale",
@@ -802,7 +802,7 @@ export const adsData: Ad[] = [
   }),
   realEstateAd({
     id: "AD-10242",
-    title: "Commercial Industrial Warehouse 1200 sqm — Sohar Freezone",
+    title: "Industrial Warehouse",
     category: "Commercial properties",
     subcategory: "Warehouses",
     postingType: "For Rent",

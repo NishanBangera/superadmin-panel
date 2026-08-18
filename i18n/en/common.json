@@ -48,7 +48,11 @@
     "categoryPerformance": "Category Performance",
     "adDistribution": "Ad distribution across categories",
     "recentActivity": "Recent Activity",
-    "latestActions": "Latest actions across the platform"
+    "latestActions": "Latest actions across the platform",
+    "pendingApprovals": "Pending Approvals",
+    "featuredAds": "Featured Ads",
+    "revenueMTD": "Revenue (MTD)",
+    "activeSubscriptions": "Active Subscriptions"
   },
   "notifications": {
     "pendingApproval": "3 ads pending approval",

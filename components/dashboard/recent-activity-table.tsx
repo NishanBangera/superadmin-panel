@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl"
 import {
   BanIcon,
   CheckIcon,
@@ -35,10 +36,12 @@ function initials(name: string) {
 }
 
 export function RecentActivityTable() {
+  const t = useTranslations("dashboard")
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recent activity</CardTitle>
+        <CardTitle>{t("recentActivity")}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col divide-y divide-border">
         {recentActivity.map((item, index) => {

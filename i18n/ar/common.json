@@ -48,7 +48,11 @@
     "categoryPerformance": "أداء الفئات",
     "adDistribution": "توزيع الإعلانات عبر الفئات",
     "recentActivity": "النشاط الأخير",
-    "latestActions": "أحدث الإجراءات عبر المنصة"
+    "latestActions": "أحدث الإجراءات عبر المنصة",
+    "pendingApprovals": "الموافقات المعلّقة",
+    "featuredAds": "الإعلانات المميزة",
+    "revenueMTD": "الإيرادات (منذ بداية الشهر)",
+    "activeSubscriptions": "الاشتراكات النشطة"
   },
   "notifications": {
     "pendingApproval": "3 إعلانات بانتظار الموافقة",

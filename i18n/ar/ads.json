@@ -1,0 +1,90 @@
+{
+  "pageHeader": {
+    "title": "إدارة الإعلانات",
+    "description": "مراجعة وإدارة وتصفية وتنظيم القوائم في السوق.",
+    "autoExpirySettings": "إعدادات الانتهاء التلقائي",
+    "resetData": "إعادة تعيين البيانات",
+    "resetToast": "تمت إعادة تعيين البيانات التجريبية إلى الكتالوج الأولي"
+  },
+  "filters": {
+    "searchPlaceholder": "البحث بالعنوان، البائع، المعرّف، الموقع…",
+    "allStatuses": "جميع الحالات",
+    "allCategories": "جميع الفئات",
+    "allPostingTypes": "جميع أنواع النشر",
+    "priceLabel": "السعر:",
+    "minPlaceholder": "الحد الأدنى ر.ع",
+    "maxPlaceholder": "الحد الأقصى ر.ع",
+    "featuredOnly": "المميزة فقط",
+    "clearFilters": "مسح الفلاتر"
+  },
+  "sort": {
+    "label": "ترتيب:",
+    "postedDate": "تاريخ النشر",
+    "price": "السعر",
+    "views": "المشاهدات",
+    "title": "العنوان",
+    "newestFirst": "الأحدث أولاً",
+    "oldestFirst": "الأقدم أولاً",
+    "highToLow": "من الأعلى إلى الأدنى",
+    "lowToHigh": "من الأدنى إلى الأعلى"
+  },
+  "bulkActions": {
+    "label": "إجراءات جماعية",
+    "approvePending": "اعتماد {count, plural, zero {صفر إعلانات معلقة} one {إعلان معلق واحد} two {إعلانين معلقين} few {# إعلانات معلقة} many {# إعلانًا معلقًا} other {# إعلان معلق}}",
+    "markFeatured": "تمييز جماعي كمميز",
+    "bulkDelete": "حذف جماعي"
+  },
+  "pagination": {
+    "showing": "عرض {start}–{end} من {total} قائمة.",
+    "selected": "{count} من {total} صف(صفوف) محدد.",
+    "rowsPerPage": "صفوف في الصفحة:",
+    "pageOf": "صفحة {current} من {total}"
+  },
+  "emptyState": {
+    "title": "لا توجد إعلانات تطابق الفلاتر الحالية.",
+    "description": "حاول مسح أو تعديل مصطلحات البحث وفلاتر الفئات.",
+    "resetButton": "إعادة تعيين جميع الفلاتر"
+  },
+  "toasts": {
+    "approved": "تمت الموافقة على {id}",
+    "rejected": "تم رفض {id}",
+    "rejectedDescription": "تم تسجيل السبب وإرسال الإشعار.",
+    "markedFeatured": "تم تمييز {id} كمميز",
+    "removedFeatured": "تمت إزالة {id} من المميز",
+    "markedSold": "تم تحديد {id} كمباع",
+    "markedActive": "تم تحديد {id} كنشط",
+    "deleted": "تم حذف {id}",
+    "bulkDeleted": "تم حذف {count, plural, zero {صفر إعلانات} one {إعلان واحد} two {إعلانين} few {# إعلانات} many {# إعلانًا} other {# إعلان}} نهائيًا",
+    "bulkApproved": "تمت الموافقة على {count, plural, zero {صفر إعلانات معلقة} one {إعلان معلق واحد} two {إعلانين معلقين} few {# إعلانات معلقة} many {# إعلانًا معلقًا} other {# إعلان معلق}}",
+    "bulkFeatured": "تم تمييز {count, plural, zero {صفر إعلانات} one {إعلان واحد} two {إعلانين} few {# إعلانات} many {# إعلانًا} other {# إعلان}} كمميز"
+  },
+  "columns": {
+    "adId": "معرّف الإعلان",
+    "listingCategory": "القائمة والفئة",
+    "type": "النوع",
+    "user": "المستخدم",
+    "status": "الحالة",
+    "price": "السعر",
+    "date": "التاريخ",
+    "featured": "مميز",
+    "sold": "مباع"
+  },
+  "cellValues": {
+    "forSale": "للبيع",
+    "forRent": "للإيجار",
+    "projects": "مشاريع",
+    "individual": "فردي",
+    "onRequest": "عند الطلب",
+    "currency": "ر.ع",
+    "perMonth": "/ شهر",
+    "selectAll": "تحديد الكل",
+    "selectRow": "تحديد الصف",
+    "toggleFeatured": "تبديل المميز",
+    "markAsSold": "تحديد كمباع",
+    "viewDetails": "عرض التفاصيل",
+    "editAdDetails": "تعديل تفاصيل الإعلان",
+    "approveAd": "الموافقة على الإعلان",
+    "rejectAd": "رفض الإعلان",
+    "deleteAd": "حذف الإعلان"
+  }
+}

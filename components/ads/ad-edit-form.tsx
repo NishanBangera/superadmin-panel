@@ -548,7 +548,7 @@ export function AdEditForm({ adId }: { adId: string }) {
 
                 <Field>
                   <FieldLabel htmlFor="ad-price">
-                   Price (OMR{form.postingType === "For Rent" ? " / Monthly" : ""}) *
+                    Price (OMR{form.postingType === "For Rent" ? " / Monthly" : ""}) *
                   </FieldLabel>
                   <Input
                     id="ad-price"
@@ -868,11 +868,10 @@ export function AdEditForm({ adId }: { adId: string }) {
                     return (
                       <label
                         key={amenity}
-                        className={`flex items-center gap-2 rounded-lg border p-2 text-xs transition-colors cursor-pointer ${
-                          checked
+                        className={`flex items-center gap-2 rounded-lg border p-2 text-xs transition-colors cursor-pointer ${checked
                             ? "border-primary bg-primary/10 font-medium text-foreground"
                             : "border-border bg-background hover:bg-muted text-muted-foreground"
-                        }`}
+                          }`}
                       >
                         <Checkbox
                           checked={checked}
@@ -899,11 +898,10 @@ export function AdEditForm({ adId }: { adId: string }) {
                     return (
                       <label
                         key={feat}
-                        className={`flex items-center gap-2 rounded-lg border p-2 text-xs transition-colors cursor-pointer ${
-                          checked
+                        className={`flex items-center gap-2 rounded-lg border p-2 text-xs transition-colors cursor-pointer ${checked
                             ? "border-primary bg-primary/10 font-medium text-foreground"
                             : "border-border bg-background hover:bg-muted text-muted-foreground"
-                        }`}
+                          }`}
                       >
                         <Checkbox
                           checked={checked}
@@ -930,11 +928,10 @@ export function AdEditForm({ adId }: { adId: string }) {
                     return (
                       <label
                         key={fac}
-                        className={`flex items-center gap-2 rounded-lg border p-2 text-xs transition-colors cursor-pointer ${
-                          checked
+                        className={`flex items-center gap-2 rounded-lg border p-2 text-xs transition-colors cursor-pointer ${checked
                             ? "border-primary bg-primary/10 font-medium text-foreground"
                             : "border-border bg-background hover:bg-muted text-muted-foreground"
-                        }`}
+                          }`}
                       >
                         <Checkbox
                           checked={checked}

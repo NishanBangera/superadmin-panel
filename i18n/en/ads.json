@@ -1,0 +1,90 @@
+{
+  "pageHeader": {
+    "title": "Ads Management",
+    "description": "Review, moderate, filter, and manage listings on the marketplace.",
+    "autoExpirySettings": "Auto-Expiry Settings",
+    "resetData": "Reset Data",
+    "resetToast": "Demo data reset to initial catalog"
+  },
+  "filters": {
+    "searchPlaceholder": "Search by title, seller, ID, location…",
+    "allStatuses": "All Statuses",
+    "allCategories": "All Categories",
+    "allPostingTypes": "All Posting Types",
+    "priceLabel": "Price:",
+    "minPlaceholder": "Min OMR",
+    "maxPlaceholder": "Max OMR",
+    "featuredOnly": "Featured Only",
+    "clearFilters": "Clear Filters"
+  },
+  "sort": {
+    "label": "Sort:",
+    "postedDate": "Posted Date",
+    "price": "Price",
+    "views": "Views",
+    "title": "Title",
+    "newestFirst": "Newest First",
+    "oldestFirst": "Oldest First",
+    "highToLow": "High to Low",
+    "lowToHigh": "Low to High"
+  },
+  "bulkActions": {
+    "label": "Bulk Actions",
+    "approvePending": "Approve {count} Pending {count, plural, one {Ad} other {Ads}}",
+    "markFeatured": "Bulk Mark as Featured",
+    "bulkDelete": "Bulk Delete"
+  },
+  "pagination": {
+    "showing": "Showing {start}–{end} of {total} listings.",
+    "selected": "{count} of {total} row(s) selected.",
+    "rowsPerPage": "Rows per page:",
+    "pageOf": "Page {current} of {total}"
+  },
+  "emptyState": {
+    "title": "No ads match the current filters.",
+    "description": "Try clearing or adjusting search terms and category filters.",
+    "resetButton": "Reset all filters"
+  },
+  "toasts": {
+    "approved": "{id} approved",
+    "rejected": "{id} rejected",
+    "rejectedDescription": "Reason recorded and notification sent.",
+    "markedFeatured": "{id} marked as featured",
+    "removedFeatured": "{id} removed from featured",
+    "markedSold": "{id} marked as sold",
+    "markedActive": "{id} marked as active",
+    "deleted": "{id} deleted",
+    "bulkDeleted": "{count} {count, plural, one {ad} other {ads}} permanently deleted",
+    "bulkApproved": "{count} pending {count, plural, one {ad} other {ads}} approved",
+    "bulkFeatured": "{count} {count, plural, one {ad} other {ads}} marked as featured"
+  },
+  "columns": {
+    "adId": "Ad ID",
+    "listingCategory": "Listing & Category",
+    "type": "Type",
+    "user": "User",
+    "status": "Status",
+    "price": "Price",
+    "date": "Date",
+    "featured": "Featured",
+    "sold": "Sold"
+  },
+  "cellValues": {
+    "forSale": "For Sale",
+    "forRent": "For Rent",
+    "projects": "Projects",
+    "individual": "Individual",
+    "onRequest": "On request",
+    "currency": "OMR",
+    "perMonth": "/ mo",
+    "selectAll": "Select all",
+    "selectRow": "Select row",
+    "toggleFeatured": "Toggle featured",
+    "markAsSold": "Mark as sold",
+    "viewDetails": "View Details",
+    "editAdDetails": "Edit Ad Details",
+    "approveAd": "Approve Ad",
+    "rejectAd": "Reject Ad",
+    "deleteAd": "Delete Ad"
+  }
+}

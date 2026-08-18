@@ -41,7 +41,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-30 flex h-14 w-full min-w-0 shrink-0 items-center justify-between gap-2 border-b bg-background/95 px-3 sm:px-4 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
-        <SidebarTrigger className="-ml-1" />
+        <SidebarTrigger className="-ms-1" />
         <Separator orientation="vertical" className="h-4" />
         <h2 className="font-heading text-sm font-semibold tracking-tight text-foreground truncate">
           {current?.titleKey ? t(current.titleKey) : "ZOQO DEAL Super Admin"}

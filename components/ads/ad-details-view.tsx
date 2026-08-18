@@ -30,6 +30,7 @@ import {
   XIcon,
 } from "lucide-react"
 import { toast } from "sonner"
+import { useTranslations, useLocale } from "next-intl"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -81,6 +82,8 @@ const projectStatusLabel: Record<string, string> = {
 
 export function AdDetailsView({ adId }: { adId: string }) {
   const router = useRouter()
+  const t = useTranslations('ads')
+  const locale = useLocale()
   const {
     getAd,
     approveAd,
@@ -210,7 +213,7 @@ export function AdDetailsView({ adId }: { adId: string }) {
                 <span>{ad.category}</span>
                 {ad.subcategory && <span>({ad.subcategory})</span>}
                 <span>•</span>
-                <span>Posted {formatDate(ad.postedDate)}</span>
+                <span>Posted {formatDate(ad.postedDate, locale)}</span>
               </p>
             </div>
           </div>
@@ -287,63 +290,65 @@ export function AdDetailsView({ adId }: { adId: string }) {
 
       {/* Key Metric Highlights Bar */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <Card className="p-3.5 flex flex-col gap-1 bg-card">
-          <span className="text-xs text-muted-foreground font-medium">Price</span>
-          <span className="text-lg font-bold text-foreground">
-            {formatPrice(ad.price, ad.postingType)}
+        <Card className="p-3.5 flex flex-col justify-between gap-1.5 bg-card min-h-[92px]">
+          <span className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
+            <TagIcon className="size-3 text-muted-foreground shrink-0" /> Price
           </span>
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-base font-bold text-foreground truncate" title={formatPrice(ad.price, ad.postingType, t)}>
+            {formatPrice(ad.price, ad.postingType, t)}
+          </span>
+          <span className="text-[11px] text-muted-foreground truncate">
             {prop?.priceNegotiable ? "Negotiable" : "Fixed price"}
           </span>
         </Card>
 
-        <Card className="p-3.5 flex flex-col gap-1 bg-card">
-          <span className="text-xs text-muted-foreground font-medium flex items-center gap-1">
-            <EyeIcon className="size-3 text-muted-foreground" /> Views
+        <Card className="p-3.5 flex flex-col justify-between gap-1.5 bg-card min-h-[92px]">
+          <span className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
+            <EyeIcon className="size-3 text-muted-foreground shrink-0" /> Views
           </span>
-          <span className="text-lg font-bold text-foreground">
+          <span className="text-base font-bold text-foreground truncate">
             {ad.views.toLocaleString()}
           </span>
-          <span className="text-[11px] text-muted-foreground">Listing impressions</span>
+          <span className="text-[11px] text-muted-foreground truncate">Listing impressions</span>
         </Card>
 
-        <Card className="p-3.5 flex flex-col gap-1 bg-card">
-          <span className="text-xs text-muted-foreground font-medium flex items-center gap-1">
-            <MousePointerClickIcon className="size-3 text-muted-foreground" /> Inquiries
+        <Card className="p-3.5 flex flex-col justify-between gap-1.5 bg-card min-h-[92px]">
+          <span className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
+            <MousePointerClickIcon className="size-3 text-muted-foreground shrink-0" /> Inquiries
           </span>
-          <span className="text-lg font-bold text-foreground">
+          <span className="text-base font-bold text-foreground truncate">
             {ad.clicks.toLocaleString()}
           </span>
-          <span className="text-[11px] text-muted-foreground">CTR: {ctr}%</span>
+          <span className="text-[11px] text-muted-foreground truncate">CTR: {ctr}%</span>
         </Card>
 
-        <Card className="p-3.5 flex flex-col gap-1 bg-card">
-          <span className="text-xs text-muted-foreground font-medium flex items-center gap-1">
-            <HeartIcon className="size-3 text-muted-foreground" /> Favorites
+        <Card className="p-3.5 flex flex-col justify-between gap-1.5 bg-card min-h-[92px]">
+          <span className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
+            <HeartIcon className="size-3 text-muted-foreground shrink-0" /> Favorites
           </span>
-          <span className="text-lg font-bold text-foreground">
+          <span className="text-base font-bold text-foreground truncate">
             {ad.favorites.toLocaleString()}
           </span>
-          <span className="text-[11px] text-muted-foreground">Saved searches</span>
+          <span className="text-[11px] text-muted-foreground truncate">Saved searches</span>
         </Card>
 
-        <Card className="p-3.5 flex flex-col gap-1 bg-card">
-          <span className="text-xs text-muted-foreground font-medium flex items-center gap-1">
-            <CalendarIcon className="size-3 text-muted-foreground" /> Posted Date
+        <Card className="p-3.5 flex flex-col justify-between gap-1.5 bg-card min-h-[92px]">
+          <span className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
+            <CalendarIcon className="size-3 text-muted-foreground shrink-0" /> Posted Date
           </span>
-          <span className="text-sm font-semibold text-foreground">
-            {formatDate(ad.postedDate)}
+          <span className="text-base font-bold text-foreground truncate" title={formatDate(ad.postedDate, locale)}>
+            {formatDate(ad.postedDate, locale)}
           </span>
-          <span className="text-[11px] text-muted-foreground">
-            Expires {formatDate(ad.expiryDate)}
+          <span className="text-[11px] text-muted-foreground truncate">
+            Expires {formatDate(ad.expiryDate, locale)}
           </span>
         </Card>
 
-        <Card className="p-3.5 flex flex-col gap-1 bg-card">
-          <span className="text-xs text-muted-foreground font-medium flex items-center gap-1">
-            <MapPinIcon className="size-3 text-muted-foreground" /> Location
+        <Card className="p-3.5 flex flex-col justify-between gap-1.5 bg-card min-h-[92px]">
+          <span className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
+            <MapPinIcon className="size-3 text-muted-foreground shrink-0" /> Location
           </span>
-          <span className="text-sm font-semibold text-foreground truncate" title={ad.location}>
+          <span className="text-base font-bold text-foreground truncate" title={ad.location}>
             {ad.city || ad.location}
           </span>
           <span className="text-[11px] text-muted-foreground truncate">
@@ -392,11 +397,10 @@ export function AdDetailsView({ adId }: { adId: string }) {
                           key={idx}
                           type="button"
                           onClick={() => setSelectedImageIndex(idx)}
-                          className={`relative size-16 shrink-0 overflow-hidden rounded-lg border-2 transition-all cursor-pointer ${
-                            selectedImageIndex === idx
+                          className={`relative size-16 shrink-0 overflow-hidden rounded-lg border-2 transition-all cursor-pointer ${selectedImageIndex === idx
                               ? "border-primary ring-2 ring-primary/30"
                               : "border-transparent opacity-70 hover:opacity-100"
-                          }`}
+                            }`}
                         >
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
