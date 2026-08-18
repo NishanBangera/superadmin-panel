@@ -302,7 +302,8 @@ export function AdEditForm({ adId }: { adId: string }) {
               type="button"
               variant="outline"
               size="icon-sm"
-              render={<Link href={`/ads/${ad.id}`} />}
+              onClick={() => router.back()}
+              aria-label="Go back"
             >
               <ArrowLeftIcon className="size-4" />
             </Button>
@@ -320,7 +321,7 @@ export function AdEditForm({ adId }: { adId: string }) {
             <Button
               type="button"
               variant="outline"
-              render={<Link href={`/ads/${ad.id}`} />}
+              onClick={() => router.back()}
             >
               Cancel
             </Button>
@@ -1081,7 +1082,7 @@ export function AdEditForm({ adId }: { adId: string }) {
           <Button
             type="button"
             variant="outline"
-            render={<Link href={`/ads/${ad.id}`} />}
+            onClick={() => router.back()}
           >
             Cancel
           </Button>
