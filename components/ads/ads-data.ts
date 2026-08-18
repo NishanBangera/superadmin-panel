@@ -1,6 +1,7 @@
 export type AdStatus = "Pending" | "Active" | "Rejected" | "Sold"
 export type PostingType = "For Sale" | "For Rent" | "Projects"
-export type ListedBy = "Landlord" | "Agent" | "Developer"
+/** Frontend listedBy: agent | landlord only (no Developer in the post-ad form) */
+export type ListedBy = "Landlord" | "Agent"
 
 export type PropertyDetails = {
   propertyType?:
@@ -215,8 +216,9 @@ export const propertyTypes = [
   "Farm",
 ] as const
 
+/** Matches platform countChoiceSchema: studio | 1..9+ */
 export const bedroomOptions = [
-  "Studio",
+  "studio",
   "1",
   "2",
   "3",
@@ -230,14 +232,14 @@ export const bedroomOptions = [
 
 export const bathroomOptions = ["1", "2", "3", "4", "5", "6", "7", "8", "9+"] as const
 
-/** Matches platform: "yes" = Furnished, "partly" = Semi-Furnished, "no" = Unfurnished */
+/** Matches platform furnishingLabel(): yes → Furnished, partly → Partly furnished, no → Unfurnished */
 export const furnishingOptions = [
   { value: "yes", label: "Furnished" },
-  { value: "partly", label: "Semi-Furnished" },
+  { value: "partly", label: "Partly furnished" },
   { value: "no", label: "Unfurnished" },
 ] as const
 
-export const listedByOptions: ListedBy[] = ["Landlord", "Agent", "Developer"]
+export const listedByOptions: ListedBy[] = ["Landlord", "Agent"]
 
 /** Rent listings use daily/monthly/quarterly/yearly; sale listings use no payment period */
 export const rentPaymentMethods = ["daily", "monthly", "quarterly", "yearly"] as const
@@ -251,7 +253,7 @@ export const projectStatusOptions = [
 /** Amenities for apartments/villas/house — matches platform houseVilla & apartment groups */
 export const availableAmenities = [
   "pool",
-  "gym",
+  "Houses",
   "parking",
   "elevator",
   "garden",
@@ -266,7 +268,7 @@ export const availableAmenities = [
 
 export const amenityLabels: Record<string, string> = {
   "pool": "Pool",
-  "gym": "Gym",
+  "Houses": "Houses",
   "parking": "Parking",
   "elevator": "Elevator",
   "garden": "Garden",
@@ -292,27 +294,26 @@ export const advancedFeaturesLabels: Record<string, string> = {
   "private-pool": "Private Pool",
 }
 
-/** Nearby facilities — matches platform nearbyFacilitiesList */
+/** Nearby facilities — exact values from zoqodeal-platform frontend nearbyOptions array */
 export const nearbyFacilitiesList = [
-  "school",
-  "mosque-masjid",
-  "shopping-mall",
-  "beach-waterfront",
-  "public-transport",
-  "hospital-clinic",
-  "public-park",
-  "kindergarten",
+  "Masjid",
+  "School",
+  "Kindergarten",
+  "Shops",
+  "Beach",
+  "Highway",
+  "Houses",
 ] as const
 
+/** Identity map — values are already human-readable (platform stores as plain text) */
 export const nearbyFacilitiesLabels: Record<string, string> = {
-  "school": "School",
-  "mosque-masjid": "Mosque / Masjid",
-  "shopping-mall": "Shopping Mall",
-  "beach-waterfront": "Beach / Waterfront",
-  "public-transport": "Public Transport",
-  "hospital-clinic": "Hospital / Clinic",
-  "public-park": "Public Park",
-  "kindergarten": "Kindergarten",
+  "Masjid": "Masjid",
+  "School": "School",
+  "Kindergarten": "Kindergarten",
+  "Shops": "Shops",
+  "Beach": "Beach",
+  "Highway": "Highway",
+  "Houses": "Houses",
 }
 
 function initialsOf(name: string) {
@@ -400,7 +401,7 @@ export const adsData: Ad[] = [
       priceNegotiable: false,
       amenities: ["pool", "garden", "balcony", "central-ac", "parking", "security", "maids-room"],
       advancedFeatures: ["smart-home", "private-pool"],
-      nearbyFacilities: ["beach-waterfront", "shopping-mall", "mosque-masjid", "school"],
+      nearbyFacilities: ["Beach", "Shops", "Masjid", "School"],
     },
     description:
       "Stunning contemporary 3-bedroom villa situated right in the heart of Al Mouj waterfront district. Boasts direct beach access, private temperature-controlled pool, landscaped garden, and high-end German kitchen fittings. Available for immediate occupancy under yearly contract.",
@@ -438,9 +439,9 @@ export const adsData: Ad[] = [
       furnishing: "no",
       projectStatus: "ready",
       priceNegotiable: true,
-      amenities: ["pool", "gym", "parking", "balcony", "security", "elevator", "central-ac"],
+      amenities: ["pool", "Houses", "parking", "balcony", "security", "elevator", "central-ac"],
       advancedFeatures: ["smart-home"],
-      nearbyFacilities: ["shopping-mall", "hospital-clinic", "school"],
+      nearbyFacilities: ["Shops", "Masjid", "School"],
     },
     description:
       "Spectacular golf course-facing 2 bedroom residence in Muscat Hills Integrated Tourism Complex. Features open-plan living, en-suite bathrooms for both bedrooms, and underground designated parking.",
@@ -477,7 +478,7 @@ export const adsData: Ad[] = [
       projectStatus: "ready",
       paymentMethod: "monthly",
       amenities: ["central-ac", "security", "storage"],
-      nearbyFacilities: ["public-transport", "mosque-masjid", "beach-waterfront"],
+      nearbyFacilities: ["Highway", "Masjid", "Beach"],
     },
     description:
       "High foot-traffic corner shop unit facing the historical Muttrah promenade. Suitable for luxury perfume, jewelry, souvenir trade, or boutique retail.",
@@ -511,7 +512,7 @@ export const adsData: Ad[] = [
       projectStatus: "ready",
       priceNegotiable: true,
       amenities: ["security"],
-      nearbyFacilities: ["school", "mosque-masjid", "public-park"],
+      nearbyFacilities: ["School", "Masjid", "Houses"],
     },
     description:
       "Corner residential plot on a 20-meter paved road with scenic mountain views. Electricity, fiber optic, and municipal water connections readily available at plot boundary.",
@@ -540,7 +541,7 @@ export const adsData: Ad[] = [
     clicks: 96,
     propertyDetails: {
       propertyType: "Studio",
-      bedrooms: "Studio",
+      bedrooms: "studio",
       bathrooms: 1,
       area: 52,
       floorNumber: "2nd Floor",
@@ -548,7 +549,7 @@ export const adsData: Ad[] = [
       projectStatus: "ready",
       paymentMethod: "monthly",
       amenities: ["central-ac", "elevator"],
-      nearbyFacilities: ["public-transport", "shopping-mall", "hospital-clinic"],
+      nearbyFacilities: ["Highway", "Shops", "Masjid"],
     },
     description:
       "Cozy, turnkey studio apartment with brand new Scandinavian furniture, smart TV, fitted kitchenette, and all utilities included in rent.",
@@ -587,7 +588,7 @@ export const adsData: Ad[] = [
       priceNegotiable: false,
       amenities: ["pool", "garden", "balcony", "central-ac", "parking", "security", "maids-room"],
       advancedFeatures: ["smart-home"],
-      nearbyFacilities: ["school", "shopping-mall", "public-park"],
+      nearbyFacilities: ["School", "Shops", "Houses"],
     },
     description:
       "Brand new 4-bedroom luxury townhouse located in exclusive Qurum Heights. Includes private elevator, rooftop barbecue terrace with panoramic city views, high ceilings, and double covered garage.",
@@ -623,9 +624,9 @@ export const adsData: Ad[] = [
       floorNumber: "14th Penthouse",
       furnishing: "yes",
       projectStatus: "ready",
-      amenities: ["pool", "gym", "parking", "balcony", "security", "elevator", "maids-room"],
+      amenities: ["pool", "Houses", "parking", "balcony", "security", "elevator", "maids-room"],
       advancedFeatures: ["smart-home", "private-pool"],
-      nearbyFacilities: ["beach-waterfront", "hospital-clinic", "public-park"],
+      nearbyFacilities: ["Beach", "Masjid", "Houses"],
     },
     description:
       "The pinnacle of coastal luxury living in Oman. Ultra-luxury triplex penthouse with 360-degree ocean views, double-height ceilings, private infinity pool, Italian marble flooring, and 24-hour concierge.",
@@ -643,7 +644,7 @@ export const adsData: Ad[] = [
     city: "Sur",
     address: "Al Aija Waterfront District",
     userName: "Nasser Al Harthy",
-    userAccountType: "Developer",
+    userAccountType: "Agent",
     status: "Pending",
     price: 65000,
     postedDate: "2026-08-12",
@@ -659,9 +660,9 @@ export const adsData: Ad[] = [
       area: 120,
       projectStatus: "under-construction",
       handoverBy: "Q4 2027",
-      amenities: ["pool", "gym", "parking", "balcony", "security", "elevator"],
+      amenities: ["pool", "Houses", "parking", "balcony", "security", "elevator"],
       advancedFeatures: ["smart-home"],
-      nearbyFacilities: ["beach-waterfront", "mosque-masjid", "school"],
+      nearbyFacilities: ["Beach", "Masjid", "School"],
     },
     description:
       "A flagship sustainable coastal development in Sur. Offering 1, 2, and 3 bedroom seafront apartments with a 5-year flexible developer payment plan: 10% down payment, 40% during construction, 50% on handover in late 2027.",
@@ -697,8 +698,8 @@ export const adsData: Ad[] = [
       furnishing: "yes",
       projectStatus: "ready",
       paymentMethod: "monthly",
-      amenities: ["pool", "gym", "parking", "elevator", "central-ac"],
-      nearbyFacilities: ["shopping-mall", "public-transport", "mosque-masjid"],
+      amenities: ["pool", "Houses", "parking", "elevator", "central-ac"],
+      nearbyFacilities: ["Shops", "Highway", "Masjid"],
     },
     description:
       "Immaculately maintained 1 bedroom flat with full contemporary furnishings, rooftop pool access, and gym. 2 minutes walk from Muscat Grand Mall and Lulu Hypermarket.",
@@ -734,7 +735,7 @@ export const adsData: Ad[] = [
       projectStatus: "ready",
       paymentMethod: "monthly",
       amenities: ["central-ac", "parking", "security", "elevator"],
-      nearbyFacilities: ["public-transport", "hospital-clinic", "shopping-mall"],
+      nearbyFacilities: ["Highway", "Masjid", "Shops"],
     },
     description:
       "Turnkey Grade-A office space with direct visibility from Sultan Qaboos Street. Fitted with partitioned executive cabins, 12-person conference room, server room, and high-speed fiber internet infrastructure.",
@@ -773,7 +774,7 @@ export const adsData: Ad[] = [
       projectStatus: "ready",
       amenities: ["pool", "garden", "balcony", "central-ac", "parking", "security"],
       advancedFeatures: ["private-pool"],
-      nearbyFacilities: ["beach-waterfront", "hospital-clinic", "shopping-mall"],
+      nearbyFacilities: ["Beach", "Masjid", "Shops"],
     },
     description:
       "Waterfront 3-bedroom holiday villa in Hawana Salalah. Exceptional seasonal rental yields during the Khareef tourist season. Fully furnished with direct beach access.",
@@ -808,7 +809,7 @@ export const adsData: Ad[] = [
       projectStatus: "ready",
       paymentMethod: "monthly",
       amenities: ["security", "central-ac"],
-      nearbyFacilities: ["public-transport"],
+      nearbyFacilities: ["Highway"],
     },
     description:
       "State-of-the-art heavy logistics warehouse in Sohar Freezone with 12m clear ceiling height, heavy floor load capacity (5 ton/sqm), 3 automated loading docks, fire sprinkler system, and built-in administrative office mezzanine.",

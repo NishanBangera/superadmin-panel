@@ -62,7 +62,7 @@ const postingTypeColors: Record<string, string> = {
 
 const furnishingLabel: Record<string, string> = {
   yes: "Furnished",
-  partly: "Semi-Furnished",
+  partly: "Partly furnished",
   no: "Unfurnished",
 }
 
