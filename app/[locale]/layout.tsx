@@ -84,8 +84,8 @@ export const metadata: Metadata = {
   description: "Marketplace operations workspace — demo preview.",
   icons: {
     icon: [
-      { url: "/favicon.ico" },
       { url: "/favicon.png", type: "image/png" },
+      { url: "/deal.png", type: "image/png" },
     ],
     apple: "/favicon.png",
   },
