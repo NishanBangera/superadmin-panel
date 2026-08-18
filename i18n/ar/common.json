@@ -1,0 +1,61 @@
+{
+  "metadata": {
+    "title": "ZOQO DEAL المشرف العام",
+    "description": "مساحة عمليات السوق."
+  },
+  "brand": {
+    "name": "ZOQO DEAL",
+    "subtitle": "المشرف العام"
+  },
+  "language": {
+    "selectorAriaLabel": "اختيار اللغة",
+    "english": "EN",
+    "arabic": "عربي"
+  },
+  "navigation": {
+    "dashboard": "لوحة التحكم",
+    "userManagement": "إدارة المستخدمين",
+    "adsManagement": "إدارة الإعلانات",
+    "chatMessaging": "المحادثات والرسائل",
+    "cms": "إدارة المحتوى",
+    "notifications": "الإشعارات",
+    "adminRoles": "الأدوار والصلاحيات"
+  },
+  "header": {
+    "searchPlaceholder": "بحث…",
+    "searchAriaLabel": "بحث",
+    "notificationsLabel": "الإشعارات",
+    "viewAllNotifications": "عرض جميع الإشعارات",
+    "toggleTheme": "تبديل المظهر",
+    "demoPreview": "معاينة تجريبية"
+  },
+  "userMenu": {
+    "superAdmin": "المشرف العام",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "logOut": "تسجيل الخروج"
+  },
+  "dashboard": {
+    "brand": "ZOQO DEAL",
+    "title": "لوحة التحكم",
+    "totalUsers": "إجمالي المستخدمين",
+    "totalAds": "إجمالي الإعلانات",
+    "revenue": "الإيرادات",
+    "activeListings": "الإعلانات النشطة",
+    "fromLastMonth": "من الشهر الماضي",
+    "revenueOverview": "نظرة عامة على الإيرادات",
+    "monthlyRevenue": "الإيرادات الشهرية عبر جميع الفئات",
+    "categoryPerformance": "أداء الفئات",
+    "adDistribution": "توزيع الإعلانات عبر الفئات",
+    "recentActivity": "النشاط الأخير",
+    "latestActions": "أحدث الإجراءات عبر المنصة"
+  },
+  "notifications": {
+    "pendingApproval": "3 إعلانات بانتظار الموافقة",
+    "timeAgo5m": "منذ 5 دقائق",
+    "userReport": "تقرير مستخدم جديد",
+    "timeAgo1h": "منذ ساعة",
+    "boostPurchased": "تم شراء باقة ترويج",
+    "timeAgo3h": "منذ 3 ساعات"
+  }
+}

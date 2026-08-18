@@ -1,9 +1,9 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { useTranslations } from "next-intl"
 
+import { Link, usePathname } from "@/i18n/navigation"
 import {
   Sidebar,
   SidebarContent,
@@ -21,6 +21,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const t = useTranslations()
 
   return (
     <Sidebar collapsible="icon">
@@ -35,19 +36,19 @@ export function AppSidebar() {
               <div className="flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg overflow-hidden bg-white/95 p-1 shadow-xs ring-1 ring-border/50">
                 <Image
                   src="/favicon.png"
-                  alt="ZOQO DEAL"
+                  alt={t("brand.name")}
                   width={24}
                   height={24}
                   priority
                   className="size-full object-contain"
                 />
               </div>
-              <div className="grid flex-1 text-left leading-tight">
+              <div className="grid flex-1 text-start leading-tight">
                 <span className="truncate font-heading text-sm font-semibold tracking-tight text-sidebar-foreground">
-                  ZOQO DEAL
+                  {t("brand.name")}
                 </span>
                 <span className="truncate text-[11px] font-medium text-sidebar-foreground/60">
-                  Super Admin
+                  {t("brand.subtitle")}
                 </span>
               </div>
             </SidebarMenuButton>
@@ -64,11 +65,11 @@ export function AppSidebar() {
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
                       isActive={isActive}
-                      tooltip={item.title}
+                      tooltip={t(item.titleKey)}
                       render={<Link href={item.href} />}
                     >
                       <item.icon />
-                      <span>{item.title}</span>
+                      <span>{t(item.titleKey)}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )
@@ -88,9 +89,9 @@ export function AppSidebar() {
               <Avatar size="sm">
                 <AvatarFallback>SA</AvatarFallback>
               </Avatar>
-              <div className="grid flex-1 text-left leading-tight">
+              <div className="grid flex-1 text-start leading-tight">
                 <span className="truncate text-sm font-medium">
-                  Super Admin
+                  {t("userMenu.superAdmin")}
                 </span>
                 <span className="truncate text-xs text-sidebar-foreground/60">
                   developer@sketchmonk.com

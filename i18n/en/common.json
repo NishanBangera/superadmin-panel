@@ -1,0 +1,61 @@
+{
+  "metadata": {
+    "title": "ZOQO DEAL Super Admin",
+    "description": "Marketplace operations workspace."
+  },
+  "brand": {
+    "name": "ZOQO DEAL",
+    "subtitle": "Super Admin"
+  },
+  "language": {
+    "selectorAriaLabel": "Language selector",
+    "english": "EN",
+    "arabic": "عربي"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "userManagement": "User Management",
+    "adsManagement": "Ads Management",
+    "chatMessaging": "Chat & Messaging",
+    "cms": "CMS",
+    "notifications": "Notifications",
+    "adminRoles": "Admin & Role Permissions"
+  },
+  "header": {
+    "searchPlaceholder": "Search…",
+    "searchAriaLabel": "Search",
+    "notificationsLabel": "Notifications",
+    "viewAllNotifications": "View All Notifications",
+    "toggleTheme": "Toggle theme",
+    "demoPreview": "Demo Preview"
+  },
+  "userMenu": {
+    "superAdmin": "Super Admin",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logOut": "Log Out"
+  },
+  "dashboard": {
+    "brand": "ZOQO DEAL",
+    "title": "Dashboard",
+    "totalUsers": "Total Users",
+    "totalAds": "Total Ads",
+    "revenue": "Revenue",
+    "activeListings": "Active Listings",
+    "fromLastMonth": "from last month",
+    "revenueOverview": "Revenue Overview",
+    "monthlyRevenue": "Monthly revenue across all categories",
+    "categoryPerformance": "Category Performance",
+    "adDistribution": "Ad distribution across categories",
+    "recentActivity": "Recent Activity",
+    "latestActions": "Latest actions across the platform"
+  },
+  "notifications": {
+    "pendingApproval": "3 ads pending approval",
+    "timeAgo5m": "5m ago",
+    "userReport": "New user report submitted",
+    "timeAgo1h": "1h ago",
+    "boostPurchased": "Boost package purchased",
+    "timeAgo3h": "3h ago"
+  }
+}
