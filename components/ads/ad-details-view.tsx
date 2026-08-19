@@ -63,10 +63,14 @@ import {
   nearbyFacilitiesLabels,
 } from "@/components/ads/ads-data"
 
+import { useReportsStore } from "@/components/ads/reports-store"
+import { ReportDetailsDialog } from "@/components/ads/report-details-dialog"
+import type { ListingReport } from "@/components/ads/reports-data"
+
 const postingTypeColors: Record<string, string> = {
-  "For Sale": "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
-  "For Rent": "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20",
-  "Projects": "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20",
+  Free: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+  Promotional: "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20",
+  "Sell ZoqoDeal": "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
 }
 
 const furnishingLabel: Record<string, string> = {
@@ -92,12 +96,15 @@ export function AdDetailsView({ adId }: { adId: string }) {
     toggleFeatured,
     toggleSold,
   } = useAdsStore()
-
+  const { getReportsByAdId } = useReportsStore()
   const ad = getAd(adId)
+  const adReports = getReportsByAdId(adId)
 
   const [selectedImageIndex, setSelectedImageIndex] = React.useState(0)
   const [rejectDialogOpen, setRejectDialogOpen] = React.useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
+  const [selectedReport, setSelectedReport] = React.useState<ListingReport | null>(null)
+  const [reportDialogOpen, setReportDialogOpen] = React.useState(false)
 
   if (!ad) {
     return (
@@ -738,28 +745,108 @@ export function AdDetailsView({ adId }: { adId: string }) {
 
               <Separator />
 
-              <div className="flex items-center justify-between">
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium">Mark as Sold / Closed</span>
-                  <span className="text-xs text-muted-foreground">
-                    Mark property deal completed
-                  </span>
+              {ad.postingType === "Sell ZoqoDeal" ? (
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium flex items-center gap-1.5">
+                      <SparklesIcon className="size-3.5 text-primary" />
+                      Mark as Sold / Closed
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      ZoqoDeal Managed Deal Status
+                    </span>
+                  </div>
+                  <Switch
+                    checked={ad.status === "Sold"}
+                    disabled={ad.status === "Rejected"}
+                    onCheckedChange={(val) => {
+                      toggleSold(ad.id, val)
+                      toast.success(
+                        val ? `${ad.id} marked as sold` : `${ad.id} marked as active`
+                      )
+                    }}
+                  />
                 </div>
-                <Switch
-                  checked={ad.status === "Sold"}
-                  disabled={ad.status === "Rejected"}
-                  onCheckedChange={(val) => {
-                    toggleSold(ad.id, val)
-                    toast.success(
-                      val ? `${ad.id} marked as sold` : `${ad.id} marked as active`
-                    )
-                  }}
-                />
-              </div>
-
-
+              ) : (
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">Sold Status</span>
+                    <span className="text-xs text-muted-foreground">
+                      Marketplace ad (managed by seller directly)
+                    </span>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className={
+                      ad.status === "Sold"
+                        ? "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20"
+                        : "bg-muted text-muted-foreground"
+                    }
+                  >
+                    {ad.status === "Sold" ? "Sold" : "Active"}
+                  </Badge>
+                </div>
+              )}
             </CardContent>
           </Card>
+
+          {/* User Reports & Flags Card (if any reported) */}
+          {adReports.length > 0 && (
+            <Card className="border-destructive/30 bg-destructive/5">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center justify-between text-destructive">
+                  <span className="flex items-center gap-2">
+                    <ShieldAlertIcon className="size-4" /> User Reports
+                  </span>
+                  <Badge variant="destructive" className="text-xs">
+                    {adReports.length} {adReports.length === 1 ? "Report" : "Reports"}
+                  </Badge>
+                </CardTitle>
+                <CardDescription className="text-xs text-destructive/80">
+                  This listing has been flagged by platform users.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-2.5">
+                {adReports.map((r) => (
+                  <div
+                    key={r.id}
+                    className="flex flex-col gap-1.5 rounded-lg border bg-card p-2.5 text-xs shadow-xs"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono font-semibold text-primary">{r.id}</span>
+                      <Badge
+                        variant="outline"
+                        className={
+                          r.status === "Pending"
+                            ? "bg-amber-500/10 text-amber-700 border-amber-500/30 text-[10px]"
+                            : "bg-muted text-muted-foreground text-[10px]"
+                        }
+                      >
+                        {r.status}
+                      </Badge>
+                    </div>
+                    <span className="font-medium text-foreground">{r.reason}</span>
+                    <p className="text-[11px] text-muted-foreground line-clamp-2">
+                      &quot;{r.details}&quot;
+                    </p>
+                    <div className="flex justify-end pt-1">
+                      <Button
+                        size="xs"
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedReport(r)
+                          setReportDialogOpen(true)
+                        }}
+                        className="text-xs"
+                      >
+                        Inspect Report
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Location & Address Card */}
           <Card>
@@ -813,6 +900,15 @@ export function AdDetailsView({ adId }: { adId: string }) {
           toast.success(`${ad.id} deleted`)
           setDeleteDialogOpen(false)
           router.push("/ads")
+        }}
+      />
+
+      <ReportDetailsDialog
+        report={selectedReport}
+        open={reportDialogOpen}
+        onOpenChange={(open) => {
+          setReportDialogOpen(open)
+          if (!open) setSelectedReport(null)
         }}
       />
     </div>

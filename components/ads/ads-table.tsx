@@ -20,6 +20,12 @@ import {
   SettingsIcon,
   SparklesIcon,
   Trash2Icon,
+  ClockIcon,
+  CheckCircle2Icon,
+  WalletIcon,
+  ListIcon,
+  ZapIcon,
+  CircleDotIcon,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -53,21 +59,27 @@ import {
   postingTypes,
   statuses,
   type Ad,
-  type AdStatus,
 } from "@/components/ads/ads-data"
 import { getAdsColumns } from "@/components/ads/ads-columns"
 import { RejectReasonDialog } from "@/components/ads/reject-reason-dialog"
 import { DeleteAdDialog } from "@/components/ads/delete-ad-dialog"
 import { BulkDeleteConfirmDialog } from "@/components/ads/bulk-delete-confirm-dialog"
 import { AutoExpirySettingsDialog } from "@/components/ads/auto-expiry-settings-dialog"
+import { AdsNavTabs } from "@/components/ads/ads-nav-tabs"
 import { useAdsStore } from "@/components/ads/ads-store"
+import { Card } from "@/components/ui/card"
 
-export function AdsTable() {
-  const t = useTranslations('ads')
+export type AdsTableViewMode = "all" | "pending" | "sold" | "zoqodeal"
+
+export type AdsTableProps = {
+  viewMode?: AdsTableViewMode
+}
+
+export function AdsTable({ viewMode = "all" }: AdsTableProps) {
+  const t = useTranslations("ads")
   const locale = useLocale()
   const {
     ads,
-    updateAd,
     approveAd,
     rejectAd,
     deleteAd,
@@ -99,50 +111,57 @@ export function AdsTable() {
   const [autoExpiryOpen, setAutoExpiryOpen] = React.useState(false)
 
   const sortFieldLabels: Record<string, string> = {
-    postedDate: t('sort.postedDate'),
-    price: t('sort.price'),
-    views: t('sort.views'),
-    title: t('sort.title'),
+    postedDate: t("sort.postedDate"),
+    price: t("sort.price"),
+    views: t("sort.views"),
+    title: t("sort.title"),
   }
 
   const getSortDirectionLabel = (field: string, direction: "asc" | "desc"): string => {
     if (field === "postedDate") {
-      return direction === "desc" ? t('sort.newestFirst') : t('sort.oldestFirst')
+      return direction === "desc" ? t("sort.newestFirst") : t("sort.oldestFirst")
     }
-    return direction === "desc" ? t('sort.highToLow') : t('sort.lowToHigh')
+    return direction === "desc" ? t("sort.highToLow") : t("sort.lowToHigh")
   }
 
   const handlers = React.useMemo(
     () => ({
       onApprove: (ad: Ad) => {
         approveAd(ad.id)
-        toast.success(t('toasts.approved', { id: ad.id }), { description: ad.title })
+        toast.success(t("toasts.approved", { id: ad.id }), { description: ad.title })
       },
       onReject: (ad: Ad) => setRejectTarget(ad),
       onDelete: (ad: Ad) => setDeleteTarget(ad),
       onToggleFeatured: (ad: Ad, value: boolean) => {
         toggleFeatured(ad.id, value)
         toast.success(
-          value ? t('toasts.markedFeatured', { id: ad.id }) : t('toasts.removedFeatured', { id: ad.id })
+          value ? t("toasts.markedFeatured", { id: ad.id }) : t("toasts.removedFeatured", { id: ad.id })
         )
       },
       onToggleSold: (ad: Ad, value: boolean) => {
         toggleSold(ad.id, value)
         toast.success(
-          value ? t('toasts.markedSold', { id: ad.id }) : t('toasts.markedActive', { id: ad.id })
+          value ? t("toasts.markedSold", { id: ad.id }) : t("toasts.markedActive", { id: ad.id })
         )
       },
     }),
     [approveAd, toggleFeatured, toggleSold, t]
   )
 
-  const columns = React.useMemo(() => getAdsColumns(handlers, t, locale), [handlers, t, locale])
+  // ONLY enable "sold" switch column when viewMode is "zoqodeal"
+  const columns = React.useMemo(
+    () =>
+      getAdsColumns(handlers, t, locale, {
+        showSoldColumn: viewMode === "zoqodeal",
+      }),
+    [handlers, t, locale, viewMode]
+  )
 
   const hasActiveFilters =
     search.trim() !== "" ||
-    statusFilter !== "all" ||
+    (viewMode === "all" && statusFilter !== "all") ||
     categoryFilter !== "all" ||
-    postingTypeFilter !== "all" ||
+    (viewMode !== "zoqodeal" && postingTypeFilter !== "all") ||
     minPrice !== "" ||
     maxPrice !== "" ||
     featuredOnly ||
@@ -162,13 +181,62 @@ export function AdsTable() {
     setPagination((prev) => ({ ...prev, pageIndex: 0 }))
   }
 
+  // Base Data depending on section
+  const sectionBaseAds = React.useMemo(() => {
+    if (viewMode === "pending") {
+      return ads.filter((a) => a.status === "Pending")
+    }
+    if (viewMode === "sold") {
+      return ads.filter((a) => a.status === "Sold")
+    }
+    if (viewMode === "zoqodeal") {
+      return ads.filter((a) => a.postingType === "Sell ZoqoDeal")
+    }
+    return ads
+  }, [ads, viewMode])
+
+  // Summary Metrics
+  const pendingMetrics = React.useMemo(() => {
+    if (viewMode !== "pending") return null
+    const urgentCount = sectionBaseAds.filter((a) => a.featured).length
+    return {
+      total: sectionBaseAds.length,
+      urgent: urgentCount,
+      standard: sectionBaseAds.length - urgentCount,
+    }
+  }, [sectionBaseAds, viewMode])
+
+  const soldMetrics = React.useMemo(() => {
+    if (viewMode !== "sold") return null
+    const totalVolume = sectionBaseAds.reduce((acc, curr) => acc + curr.price, 0)
+    return {
+      total: sectionBaseAds.length,
+      volume: totalVolume,
+    }
+  }, [sectionBaseAds, viewMode])
+
+  const zoqodealMetrics = React.useMemo(() => {
+    if (viewMode !== "zoqodeal") return null
+    const activeDeals = sectionBaseAds.filter((a) => a.status === "Active").length
+    const soldDeals = sectionBaseAds.filter((a) => a.status === "Sold").length
+    const pendingDeals = sectionBaseAds.filter((a) => a.status === "Pending").length
+    const totalValuation = sectionBaseAds.reduce((acc, curr) => acc + curr.price, 0)
+    return {
+      total: sectionBaseAds.length,
+      active: activeDeals,
+      sold: soldDeals,
+      pending: pendingDeals,
+      volume: totalValuation,
+    }
+  }, [sectionBaseAds, viewMode])
+
   // Filter and Sort Data
   const filteredData = React.useMemo(() => {
     const query = search.trim().toLowerCase()
     const parsedMinPrice = minPrice !== "" ? parseFloat(minPrice) : null
     const parsedMaxPrice = maxPrice !== "" ? parseFloat(maxPrice) : null
 
-    const result = ads.filter((ad) => {
+    const result = sectionBaseAds.filter((ad) => {
       // Search
       const matchesQuery =
         !query ||
@@ -178,7 +246,8 @@ export function AdsTable() {
         ad.location.toLowerCase().includes(query)
 
       // Status
-      const matchesStatus = statusFilter === "all" || ad.status === statusFilter
+      const matchesStatus =
+        viewMode !== "all" || statusFilter === "all" || ad.status === statusFilter
 
       // Category
       const matchesCategory =
@@ -186,7 +255,9 @@ export function AdsTable() {
 
       // Posting Type
       const matchesPostingType =
-        postingTypeFilter === "all" || ad.postingType === postingTypeFilter
+        viewMode === "zoqodeal" ||
+        postingTypeFilter === "all" ||
+        ad.postingType === postingTypeFilter
 
       // Price Range
       const matchesMinPrice =
@@ -226,7 +297,7 @@ export function AdsTable() {
 
     return result
   }, [
-    ads,
+    sectionBaseAds,
     search,
     statusFilter,
     categoryFilter,
@@ -236,6 +307,7 @@ export function AdsTable() {
     featuredOnly,
     sortField,
     sortDirection,
+    viewMode,
   ])
 
   const table = useReactTable({
@@ -270,20 +342,20 @@ export function AdsTable() {
   function bulkApprovePendingOnly() {
     if (pendingSelectedCount === 0) return
     pendingSelectedRows.forEach((r) => approveAd(r.original.id))
-    toast.success(t('toasts.bulkApproved', { count: pendingSelectedCount }))
+    toast.success(t("toasts.bulkApproved", { count: pendingSelectedCount }))
     clearSelection()
   }
 
   function bulkFeature() {
     selectedRows.forEach((r) => toggleFeatured(r.original.id, true))
-    toast.success(t('toasts.bulkFeatured', { count: selectedCount }))
+    toast.success(t("toasts.bulkFeatured", { count: selectedCount }))
     clearSelection()
   }
 
   function handleConfirmBulkDelete() {
     const ids = selectedRows.map((r) => r.original.id)
     deleteAds(ids)
-    toast.success(t('toasts.bulkDeleted', { count: selectedCount }))
+    toast.success(t("toasts.bulkDeleted", { count: selectedCount }))
     clearSelection()
   }
 
@@ -296,24 +368,176 @@ export function AdsTable() {
     filteredData.length
   )
 
+  const headerTitle =
+    viewMode === "pending"
+      ? t("pageHeader.pendingTitle")
+      : viewMode === "sold"
+      ? t("pageHeader.soldTitle")
+      : viewMode === "zoqodeal"
+      ? t("pageHeader.zoqodealTitle")
+      : t("pageHeader.title")
+
+  const headerDescription =
+    viewMode === "pending"
+      ? t("pageHeader.pendingDescription")
+      : viewMode === "sold"
+      ? t("pageHeader.soldDescription")
+      : viewMode === "zoqodeal"
+      ? t("pageHeader.zoqodealDescription")
+      : t("pageHeader.description")
+
   return (
     <div className="flex flex-col gap-5 min-w-0">
       {/* Header Bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-heading text-2xl font-semibold tracking-tight">
-            {t('pageHeader.title')}
+            {headerTitle}
           </h1>
-          <p className="text-sm text-muted-foreground">
-            {t('pageHeader.description')}
-          </p>
+          <p className="text-sm text-muted-foreground">{headerDescription}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => setAutoExpiryOpen(true)}>
-            <SettingsIcon className="size-4" /> {t('pageHeader.autoExpirySettings')}
+            <SettingsIcon className="size-4" /> {t("pageHeader.autoExpirySettings")}
           </Button>
         </div>
       </div>
+
+      {/* Navigation Tabs */}
+      <AdsNavTabs />
+
+      {/* Metrics Cards for Sections */}
+      {viewMode === "pending" && pendingMetrics && (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <Card className="flex-row items-center justify-between gap-3 p-4 border-amber-500/30 bg-amber-500/5">
+            <div>
+              <p className="text-xs font-medium text-amber-700 dark:text-amber-400">
+                {t("metrics.pendingApprovals")}
+              </p>
+              <p className="text-2xl font-bold tracking-tight text-foreground mt-1">
+                {pendingMetrics.total}
+              </p>
+            </div>
+            <div className="flex size-10 items-center justify-center rounded-xl bg-amber-500/20 text-amber-600">
+              <ClockIcon className="size-5" />
+            </div>
+          </Card>
+          <Card className="flex-row items-center justify-between gap-3 p-4">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">
+                {t("metrics.priorityFeatured")}
+              </p>
+              <p className="text-2xl font-bold tracking-tight text-foreground mt-1">
+                {pendingMetrics.urgent}
+              </p>
+            </div>
+            <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <SparklesIcon className="size-5" />
+            </div>
+          </Card>
+          <Card className="flex-row items-center justify-between gap-3 p-4">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">
+                {t("metrics.standardListings")}
+              </p>
+              <p className="text-2xl font-bold tracking-tight text-foreground mt-1">
+                {pendingMetrics.standard}
+              </p>
+            </div>
+            <div className="flex size-10 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+              <ListIcon className="size-5" />
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {viewMode === "sold" && soldMetrics && (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Card className="flex-row items-center justify-between gap-3 p-4 border-emerald-500/30 bg-emerald-500/5">
+            <div>
+              <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                {t("metrics.totalSold")}
+              </p>
+              <p className="text-2xl font-bold tracking-tight text-foreground mt-1">
+                {soldMetrics.total}
+              </p>
+            </div>
+            <div className="flex size-10 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-600">
+              <CheckCircle2Icon className="size-5" />
+            </div>
+          </Card>
+          <Card className="flex-row items-center justify-between gap-3 p-4">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">
+                {t("metrics.transactionVolume")}
+              </p>
+              <p className="text-2xl font-bold tracking-tight text-foreground mt-1">
+                {soldMetrics.volume.toLocaleString("en-US")} OMR
+              </p>
+            </div>
+            <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <WalletIcon className="size-5" />
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {viewMode === "zoqodeal" && zoqodealMetrics && (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <Card className="flex-row items-center justify-between gap-3 p-4 border-blue-500/30 bg-blue-500/5">
+            <div>
+              <p className="text-xs font-medium text-blue-700 dark:text-blue-400">
+                {t("metrics.zoqodealAds")}
+              </p>
+              <p className="text-2xl font-bold tracking-tight text-foreground mt-1">
+                {zoqodealMetrics.total}
+              </p>
+            </div>
+            <div className="flex size-10 items-center justify-center rounded-xl bg-blue-500/20 text-blue-600">
+              <ZapIcon className="size-5" />
+            </div>
+          </Card>
+          <Card className="flex-row items-center justify-between gap-3 p-4">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">
+                {t("metrics.activeDeals")}
+              </p>
+              <p className="text-2xl font-bold tracking-tight text-foreground mt-1">
+                {zoqodealMetrics.active}
+              </p>
+            </div>
+            <div className="flex size-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
+              <CircleDotIcon className="size-5" />
+            </div>
+          </Card>
+          <Card className="flex-row items-center justify-between gap-3 p-4">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">
+                {t("metrics.closedSold")}
+              </p>
+              <p className="text-2xl font-bold tracking-tight text-foreground mt-1">
+                {zoqodealMetrics.sold}
+              </p>
+            </div>
+            <div className="flex size-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-600">
+              <CheckCircle2Icon className="size-5" />
+            </div>
+          </Card>
+          <Card className="flex-row items-center justify-between gap-3 p-4">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">
+                {t("metrics.totalValuation")}
+              </p>
+              <p className="text-xl font-bold tracking-tight text-foreground mt-1 truncate">
+                {zoqodealMetrics.volume.toLocaleString("en-US")} OMR
+              </p>
+            </div>
+            <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <WalletIcon className="size-5" />
+            </div>
+          </Card>
+        </div>
+      )}
 
       {/* Primary & Advanced Filters Section */}
       <div className="flex flex-col gap-3 rounded-xl border bg-card/60 p-4 shadow-xs">
@@ -328,33 +552,35 @@ export function AdsTable() {
                 setSearch(e.target.value)
                 setPagination((prev) => ({ ...prev, pageIndex: 0 }))
               }}
-              placeholder={t('filters.searchPlaceholder')}
+              placeholder={t("filters.searchPlaceholder")}
               className="h-9 ps-9"
             />
           </div>
 
-          {/* Status Dropdown */}
-          <Select
-            value={statusFilter}
-            onValueChange={(val) => {
-              setStatusFilter(val ?? "all")
-              setPagination((prev) => ({ ...prev, pageIndex: 0 }))
-            }}
-          >
-            <SelectTrigger className="w-full lg:w-40 h-9">
-              <SelectValue>
-                {statusFilter === "all" ? t('filters.allStatuses') : statusFilter}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t('filters.allStatuses')}</SelectItem>
-              {statuses.map((s) => (
-                <SelectItem key={s} value={s}>
-                  {s}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {/* Status Dropdown (only in 'all' view) */}
+          {viewMode === "all" && (
+            <Select
+              value={statusFilter}
+              onValueChange={(val) => {
+                setStatusFilter(val ?? "all")
+                setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+              }}
+            >
+              <SelectTrigger className="w-full lg:w-40 h-9">
+                <SelectValue>
+                  {statusFilter === "all" ? t("filters.allStatuses") : statusFilter}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("filters.allStatuses")}</SelectItem>
+                {statuses.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
 
           {/* Category Dropdown */}
           <Select
@@ -366,11 +592,11 @@ export function AdsTable() {
           >
             <SelectTrigger className="w-full lg:w-48 h-9">
               <SelectValue>
-                {categoryFilter === "all" ? t('filters.allCategories') : categoryFilter}
+                {categoryFilter === "all" ? t("filters.allCategories") : categoryFilter}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t('filters.allCategories')}</SelectItem>
+              <SelectItem value="all">{t("filters.allCategories")}</SelectItem>
               {categories.map((c) => (
                 <SelectItem key={c} value={c}>
                   {c}
@@ -379,28 +605,30 @@ export function AdsTable() {
             </SelectContent>
           </Select>
 
-          {/* Posting Type Dropdown */}
-          <Select
-            value={postingTypeFilter}
-            onValueChange={(val) => {
-              setPostingTypeFilter(val ?? "all")
-              setPagination((prev) => ({ ...prev, pageIndex: 0 }))
-            }}
-          >
-            <SelectTrigger className="w-full lg:w-44 h-9">
-              <SelectValue>
-                {postingTypeFilter === "all" ? t('filters.allPostingTypes') : postingTypeFilter}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t('filters.allPostingTypes')}</SelectItem>
-              {postingTypes.map((pt) => (
-                <SelectItem key={pt} value={pt}>
-                  {pt}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {/* Posting Type Dropdown (only when not in zoqodeal view) */}
+          {viewMode !== "zoqodeal" && (
+            <Select
+              value={postingTypeFilter}
+              onValueChange={(val) => {
+                setPostingTypeFilter(val ?? "all")
+                setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+              }}
+            >
+              <SelectTrigger className="w-full lg:w-44 h-9">
+                <SelectValue>
+                  {postingTypeFilter === "all" ? t("filters.allPostingTypes") : postingTypeFilter}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("filters.allPostingTypes")}</SelectItem>
+                {postingTypes.map((pt) => (
+                  <SelectItem key={pt} value={pt}>
+                    {pt}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
 
           {/* Bulk Actions Dropdown */}
           <DropdownMenu>
@@ -412,7 +640,7 @@ export function AdsTable() {
                   className="h-9 shrink-0"
                   disabled={selectedCount === 0}
                 >
-                  {t('bulkActions.label')}
+                  {t("bulkActions.label")}
                   {selectedCount > 0 && (
                     <span className="ms-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
                       {selectedCount}
@@ -427,18 +655,18 @@ export function AdsTable() {
               {pendingSelectedCount > 0 && (
                 <DropdownMenuItem onClick={bulkApprovePendingOnly}>
                   <SparklesIcon className="size-4 text-emerald-600" />
-                  {t('bulkActions.approvePending', { count: pendingSelectedCount })}
+                  {t("bulkActions.approvePending", { count: pendingSelectedCount })}
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem onClick={bulkFeature}>
-                <SparklesIcon className="size-4 text-amber-500" /> {t('bulkActions.markFeatured')}
+                <SparklesIcon className="size-4 text-amber-500" /> {t("bulkActions.markFeatured")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="text-destructive"
                 onClick={() => setBulkDeleteOpen(true)}
               >
-                <Trash2Icon className="size-4" /> {t('bulkActions.bulkDelete')} ({selectedCount})
+                <Trash2Icon className="size-4" /> {t("bulkActions.bulkDelete")} ({selectedCount})
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -449,11 +677,11 @@ export function AdsTable() {
           <div className="flex flex-wrap items-center gap-3">
             {/* Price Range Filter */}
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <span className="font-medium text-foreground">{t('filters.priceLabel')}</span>
+              <span className="font-medium text-foreground">{t("filters.priceLabel")}</span>
               <Input
                 type="number"
                 min={0}
-                placeholder={t('filters.minPlaceholder')}
+                placeholder={t("filters.minPlaceholder")}
                 value={minPrice}
                 onChange={(e) => {
                   setMinPrice(e.target.value)
@@ -465,7 +693,7 @@ export function AdsTable() {
               <Input
                 type="number"
                 min={0}
-                placeholder={t('filters.maxPlaceholder')}
+                placeholder={t("filters.maxPlaceholder")}
                 value={maxPrice}
                 onChange={(e) => {
                   setMaxPrice(e.target.value)
@@ -480,19 +708,19 @@ export function AdsTable() {
             {/* Sort Field and Direction */}
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <ArrowDownUpIcon className="size-3.5" />
-              <span className="font-medium text-foreground">{t('sort.label')}</span>
+              <span className="font-medium text-foreground">{t("sort.label")}</span>
               <Select
                 value={sortField}
                 onValueChange={(val) => val && setSortField(val)}
               >
                 <SelectTrigger className="h-8 w-32 text-xs">
-                  <SelectValue>{sortFieldLabels[sortField] || t('sort.postedDate')}</SelectValue>
+                  <SelectValue>{sortFieldLabels[sortField] || t("sort.postedDate")}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="postedDate">{t('sort.postedDate')}</SelectItem>
-                  <SelectItem value="price">{t('sort.price')}</SelectItem>
-                  <SelectItem value="views">{t('sort.views')}</SelectItem>
-                  <SelectItem value="title">{t('sort.title')}</SelectItem>
+                  <SelectItem value="postedDate">{t("sort.postedDate")}</SelectItem>
+                  <SelectItem value="price">{t("sort.price")}</SelectItem>
+                  <SelectItem value="views">{t("sort.views")}</SelectItem>
+                  <SelectItem value="title">{t("sort.title")}</SelectItem>
                 </SelectContent>
               </Select>
               <Select
@@ -506,10 +734,10 @@ export function AdsTable() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="desc">
-                    {sortField === "postedDate" ? t('sort.newestFirst') : t('sort.highToLow')}
+                    {sortField === "postedDate" ? t("sort.newestFirst") : t("sort.highToLow")}
                   </SelectItem>
                   <SelectItem value="asc">
-                    {sortField === "postedDate" ? t('sort.oldestFirst') : t('sort.lowToHigh')}
+                    {sortField === "postedDate" ? t("sort.oldestFirst") : t("sort.lowToHigh")}
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -531,7 +759,7 @@ export function AdsTable() {
                 htmlFor="featured-filter-toggle"
                 className="text-xs font-medium cursor-pointer text-foreground select-none"
               >
-                {t('filters.featuredOnly')}
+                {t("filters.featuredOnly")}
               </label>
             </div>
           </div>
@@ -544,7 +772,7 @@ export function AdsTable() {
               onClick={resetAllFilters}
               className="h-8 text-xs text-muted-foreground hover:text-foreground"
             >
-              <FilterXIcon className="size-3.5" /> {t('filters.clearFilters')}
+              <FilterXIcon className="size-3.5" /> {t("filters.clearFilters")}
             </Button>
           )}
         </div>
@@ -591,9 +819,9 @@ export function AdsTable() {
                   className="h-36 text-center text-sm text-muted-foreground"
                 >
                   <div className="flex flex-col items-center justify-center gap-1.5 py-4">
-                    <p className="font-medium text-foreground">{t('emptyState.title')}</p>
+                    <p className="font-medium text-foreground">{t("emptyState.title")}</p>
                     <p className="text-xs text-muted-foreground">
-                      {t('emptyState.description')}
+                      {t("emptyState.description")}
                     </p>
                     {hasActiveFilters && (
                       <Button
@@ -602,7 +830,7 @@ export function AdsTable() {
                         onClick={resetAllFilters}
                         className="mt-2"
                       >
-                        {t('emptyState.resetButton')}
+                        {t("emptyState.resetButton")}
                       </Button>
                     )}
                   </div>
@@ -618,13 +846,13 @@ export function AdsTable() {
         <div className="flex flex-wrap items-center gap-4">
           <p>
             {selectedCount > 0
-              ? t('pagination.selected', { count: selectedCount, total: filteredData.length })
-              : t('pagination.showing', { start: startRowIndex, end: endRowIndex, total: filteredData.length })}
+              ? t("pagination.selected", { count: selectedCount, total: filteredData.length })
+              : t("pagination.showing", { start: startRowIndex, end: endRowIndex, total: filteredData.length })}
           </p>
 
           {/* Items per page selector */}
           <div className="flex items-center gap-1.5">
-            <span>{t('pagination.rowsPerPage')}</span>
+            <span>{t("pagination.rowsPerPage")}</span>
             <Select
               value={String(pagination.pageSize)}
               onValueChange={(val) => {
@@ -652,7 +880,7 @@ export function AdsTable() {
         {/* Page navigation */}
         <div className="flex items-center gap-2">
           <span>
-            {t('pagination.pageOf', { current: table.getPageCount() === 0 ? 1 : pagination.pageIndex + 1, total: Math.max(table.getPageCount(), 1) })}
+            {t("pagination.pageOf", { current: table.getPageCount() === 0 ? 1 : pagination.pageIndex + 1, total: Math.max(table.getPageCount(), 1) })}
           </span>
           <Button
             variant="outline"
@@ -681,8 +909,8 @@ export function AdsTable() {
         onOpenChange={(open) => !open && setRejectTarget(null)}
         onConfirm={(ad, reason) => {
           rejectAd(ad.id, reason)
-          toast.success(t('toasts.rejected', { id: ad.id }), {
-            description: t('toasts.rejectedDescription'),
+          toast.success(t("toasts.rejected", { id: ad.id }), {
+            description: t("toasts.rejectedDescription"),
           })
           setRejectTarget(null)
         }}
@@ -693,7 +921,7 @@ export function AdsTable() {
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         onConfirm={(ad) => {
           deleteAd(ad.id)
-          toast.success(t('toasts.deleted', { id: ad.id }))
+          toast.success(t("toasts.deleted", { id: ad.id }))
           setDeleteTarget(null)
         }}
       />

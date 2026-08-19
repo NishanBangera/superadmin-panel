@@ -2,9 +2,35 @@
   "pageHeader": {
     "title": "Ads Management",
     "description": "Review, moderate, filter, and manage listings on the marketplace.",
+    "pendingTitle": "Pending Listings",
+    "pendingDescription": "Review and moderate submitted listings waiting for administrator approval.",
+    "soldTitle": "Sold Listings",
+    "soldDescription": "Archive and history of listings marked as completed or sold across the marketplace.",
+    "zoqodealTitle": "ZoqoDeal Ads",
+    "zoqodealDescription": "Direct managed properties, exclusive agency listings, and ZoqoDeal partner advertisements.",
+    "reportsTitle": "Listing Reports",
+    "reportsDescription": "Review and investigate user-submitted flags and reports against marketplace listings.",
     "autoExpirySettings": "Auto-Expiry Settings",
     "resetData": "Reset Data",
     "resetToast": "Demo data reset to initial catalog"
+  },
+  "tabs": {
+    "all": "All Listings",
+    "pending": "Pending Approvals",
+    "sold": "Sold Listings",
+    "zoqodeal": "ZoqoDeal Ads",
+    "reports": "User Reports"
+  },
+  "metrics": {
+    "pendingApprovals": "Pending Approvals",
+    "priorityFeatured": "Priority / Featured",
+    "standardListings": "Standard Listings",
+    "totalSold": "Total Sold Listings",
+    "transactionVolume": "Transaction Volume",
+    "zoqodealAds": "ZoqoDeal Ads",
+    "activeDeals": "Active Deals",
+    "closedSold": "Closed / Sold",
+    "totalValuation": "Total Valuation"
   },
   "filters": {
     "searchPlaceholder": "Search by title, seller, ID, location…",
@@ -16,6 +42,56 @@
     "maxPlaceholder": "Max OMR",
     "featuredOnly": "Featured Only",
     "clearFilters": "Clear Filters"
+  },
+  "reports": {
+    "title": "User Submitted Reports",
+    "description": "Review, investigate, and take action on reports flagged by platform users.",
+    "searchPlaceholder": "Search by report ID, ad title, reporter, or seller…",
+    "allReasons": "All Reasons",
+    "statusPending": "Pending Review",
+    "statusInvestigating": "Investigating",
+    "statusResolved": "Resolved",
+    "statusDismissed": "Dismissed",
+    "totalReports": "Total Reports",
+    "pendingReports": "Pending Review",
+    "investigatingReports": "Under Investigation",
+    "resolvedReports": "Resolved / Dismissed",
+    "columns": {
+      "reportId": "Report ID",
+      "listing": "Reported Listing",
+      "reason": "Reason & Details",
+      "reporter": "Reported By",
+      "seller": "Seller",
+      "date": "Reported Date",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "actions": {
+      "viewDetails": "View Report Details",
+      "investigate": "Mark as Investigating",
+      "resolve": "Resolve Report",
+      "dismiss": "Dismiss (No Violation)",
+      "suspendAd": "Suspend / Reject Ad",
+      "deleteReport": "Delete Report"
+    },
+    "dialog": {
+      "title": "Report Details",
+      "subtitle": "Inspect report justification, target ad details, and moderation log.",
+      "reporterInfo": "Reporter Information",
+      "sellerInfo": "Seller Information",
+      "violationDetails": "Reported Violation",
+      "moderatorNotes": "Moderator Notes",
+      "notesPlaceholder": "Add internal notes or audit reasoning…",
+      "actionTaken": "Action Taken",
+      "saveNotes": "Save Notes",
+      "suspendConfirmTitle": "Suspend & Reject Listing",
+      "suspendConfirmDesc": "This will immediately set the ad status to Rejected with violation reasoning."
+    },
+    "toasts": {
+      "statusUpdated": "Report {id} marked as {status}",
+      "adSuspended": "Ad {adId} suspended and rejected due to report",
+      "notesSaved": "Moderator notes updated"
+    }
   },
   "sort": {
     "label": "Sort:",
@@ -70,9 +146,9 @@
     "sold": "Sold"
   },
   "cellValues": {
-    "forSale": "For Sale",
-    "forRent": "For Rent",
-    "projects": "Projects",
+    "free": "Free",
+    "promotional": "Promotional",
+    "sellZoqodeal": "Sell ZoqoDeal",
     "individual": "Individual",
     "onRequest": "On request",
     "currency": "OMR",

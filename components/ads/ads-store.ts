@@ -3,7 +3,7 @@
 import * as React from "react"
 import { adsData, type Ad, type AdStatus } from "@/components/ads/ads-data"
 
-const STORAGE_KEY = "zoqodeal_superadmin_real_estate_ads_v5"
+const STORAGE_KEY = "zoqodeal_superadmin_real_estate_ads_v6"
 const SYNC_EVENT = "zoqodeal_ads_store_sync"
 
 function getInitialAds(): Ad[] {

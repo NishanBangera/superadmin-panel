@@ -18,10 +18,16 @@ import {
 } from "@/components/ui/sidebar"
 import { navItems } from "@/components/layout/nav-items"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { useAdsStore } from "@/components/ads/ads-store"
 
 export function AppSidebar() {
   const pathname = usePathname()
   const t = useTranslations()
+  const { ads, isLoaded: adsLoaded } = useAdsStore()
+
+  const pendingAdsCount = adsLoaded
+    ? ads.filter((a) => a.status === "Pending").length
+    : 0
 
   return (
     <Sidebar collapsible="icon">
@@ -60,7 +66,13 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => {
-                const isActive = pathname === item.href
+                const isActive =
+                  item.href === "/dashboard"
+                    ? pathname === "/dashboard"
+                    : pathname.startsWith(item.href)
+
+                const isAdsItem = item.href === "/ads"
+
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
@@ -69,7 +81,12 @@ export function AppSidebar() {
                       render={<Link href={item.href} />}
                     >
                       <item.icon />
-                      <span>{t(item.titleKey)}</span>
+                      <span className="flex-1">{t(item.titleKey)}</span>
+                      {isAdsItem && pendingAdsCount > 0 && (
+                        <span className="ms-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500/20 px-1 text-[10px] font-semibold text-amber-700 dark:text-amber-300">
+                          {pendingAdsCount}
+                        </span>
+                      )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )

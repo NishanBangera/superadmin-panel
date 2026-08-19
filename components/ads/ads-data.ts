@@ -1,5 +1,5 @@
 export type AdStatus = "Pending" | "Active" | "Rejected" | "Sold"
-export type PostingType = "For Sale" | "For Rent" | "Projects"
+export type PostingType = "Free" | "Promotional" | "Sell ZoqoDeal"
 /** Frontend listedBy: agent | landlord only (no Developer in the post-ad form) */
 export type ListedBy = "Landlord" | "Agent"
 
@@ -84,7 +84,7 @@ export const categories = [
   "Projects",
 ] as const
 
-export const postingTypes: PostingType[] = ["For Sale", "For Rent", "Projects"]
+export const postingTypes: PostingType[] = ["Free", "Promotional", "Sell ZoqoDeal"]
 
 export const statuses: AdStatus[] = ["Pending", "Active", "Rejected", "Sold"]
 
@@ -241,14 +241,7 @@ export const furnishingOptions = [
 
 export const listedByOptions: ListedBy[] = ["Landlord", "Agent"]
 
-/** Rent listings use daily/monthly/quarterly/yearly; sale listings use no payment period */
-export const rentPaymentMethods = [
-  { value: "daily", label: "Daily" },
-  { value: "monthly", label: "Monthly" },
-  { value: "quarterly", label: "Quarterly" },
-  { value: "yearly", label: "Yearly" },
-] as const
-
+/** Rent listings use daily/monthly/quarterly/yearly */
 export const paymentMethods = [
   { value: "daily", label: "Daily" },
   { value: "monthly", label: "Monthly" },
@@ -268,7 +261,7 @@ export const projectStatusOptions = [
   { value: "under-construction", label: "Under Construction" },
 ] as const
 
-/** Amenities for apartments/villas/house — matches platform houseVilla & apartment groups */
+/** Amenities for apartments/villas/house */
 export const availableAmenities = [
   "pool",
   "gym",
@@ -299,7 +292,7 @@ export const amenityLabels: Record<string, string> = {
   "pets-allowed": "Pets Allowed",
 }
 
-/** Advanced Features — matches platform REAL_ESTATE_POST_AD_ADVANCED_FEATURE_OPTIONS */
+/** Advanced Features */
 export const advancedFeaturesList = [
   "smart-home",
   "solar-panels",
@@ -312,7 +305,7 @@ export const advancedFeaturesLabels: Record<string, string> = {
   "private-pool": "Private Pool",
 }
 
-/** Nearby facilities — exact values from zoqodeal-platform frontend nearbyOptions array */
+/** Nearby facilities */
 export const nearbyFacilitiesList = [
   "Masjid",
   "School",
@@ -323,7 +316,6 @@ export const nearbyFacilitiesList = [
   "Houses",
 ] as const
 
-/** Identity map — values are already human-readable (platform stores as plain text) */
 export const nearbyFacilitiesLabels: Record<string, string> = {
   "Masjid": "Masjid",
   "School": "School",
@@ -393,7 +385,7 @@ export const adsData: Ad[] = [
     title: "3BHK Sea-View Villa",
     category: "Villas",
     subcategory: "Residential Villas",
-    postingType: "For Rent",
+    postingType: "Promotional",
     governorate: "Muscat",
     city: "Al Mouj",
     address: "Sector 4, Marina Way 12",
@@ -434,11 +426,11 @@ export const adsData: Ad[] = [
     title: "Luxury 2BHK Apartment",
     category: "Apartments",
     subcategory: "Apartments for Sale",
-    postingType: "For Sale",
+    postingType: "Sell ZoqoDeal",
     governorate: "Muscat",
     city: "Muscat Hills",
     address: "Golf Tower B, 5th Floor",
-    userName: "Huda Al Saidi",
+    userName: "ZoqoDeal Verified Sales",
     userAccountType: "Agent",
     status: "Active",
     price: 78000,
@@ -462,7 +454,7 @@ export const adsData: Ad[] = [
       nearbyFacilities: ["Shops", "Masjid", "School"],
     },
     description:
-      "Spectacular golf course-facing 2 bedroom residence in Muscat Hills Integrated Tourism Complex. Features open-plan living, en-suite bathrooms for both bedrooms, and underground designated parking.",
+      "Exclusive ZoqoDeal managed listing: Spectacular golf course-facing 2 bedroom residence in Muscat Hills Integrated Tourism Complex. Features open-plan living, en-suite bathrooms for both bedrooms, and underground designated parking.",
     images: [
       "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&auto=format&fit=crop&q=80",
@@ -471,9 +463,9 @@ export const adsData: Ad[] = [
   realEstateAd({
     id: "AD-10233",
     title: "Prime Retail Shop",
-    category: "Commercial properties",
+    category: "Commercial Properties",
     subcategory: "Shops & Retail",
-    postingType: "For Rent",
+    postingType: "Free",
     governorate: "Muscat",
     city: "Muttrah",
     address: "Souq Gate 3, Corniche Road",
@@ -509,12 +501,12 @@ export const adsData: Ad[] = [
     title: "Residential Land Plot",
     category: "Land",
     subcategory: "Residential Land",
-    postingType: "For Sale",
+    postingType: "Sell ZoqoDeal",
     governorate: "Muscat",
     city: "Ansab",
     address: "Phase 4, Plot 182",
-    userName: "Bader Al Ghafri",
-    userAccountType: "Landlord",
+    userName: "ZoqoDeal Lands Division",
+    userAccountType: "Agent",
     status: "Active",
     price: 145000,
     postedDate: "2026-07-20",
@@ -533,7 +525,7 @@ export const adsData: Ad[] = [
       nearbyFacilities: ["School", "Masjid", "Houses"],
     },
     description:
-      "Corner residential plot on a 20-meter paved road with scenic mountain views. Electricity, fiber optic, and municipal water connections readily available at plot boundary.",
+      "Direct ZoqoDeal Partner Plot: Corner residential plot on a 20-meter paved road with scenic mountain views. Electricity, fiber optic, and municipal water connections readily available at plot boundary.",
     images: [
       "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&auto=format&fit=crop&q=80",
     ],
@@ -543,7 +535,7 @@ export const adsData: Ad[] = [
     title: "Furnished Studio Apartment",
     category: "Studios",
     subcategory: "Apartments for Rent",
-    postingType: "For Rent",
+    postingType: "Free",
     governorate: "Muscat",
     city: "Ruwi",
     address: "Bldg 45, Street 18",
@@ -580,7 +572,7 @@ export const adsData: Ad[] = [
     title: "Modern 4BHK Townhouse",
     category: "Villas",
     subcategory: "Townhouses",
-    postingType: "For Sale",
+    postingType: "Promotional",
     governorate: "Muscat",
     city: "Qurm",
     address: "Way 2914, Villa Compound 7",
@@ -620,13 +612,13 @@ export const adsData: Ad[] = [
     title: "Luxury Marina Penthouse",
     category: "Villas",
     subcategory: "Penthouses",
-    postingType: "For Sale",
+    postingType: "Sell ZoqoDeal",
     governorate: "Muscat",
     city: "Qurm",
     address: "Saraya Waterfront Tower 1, 14th Floor",
-    userName: "Saraya Realty",
+    userName: "ZoqoDeal Premium Deals",
     userAccountType: "Agent",
-    status: "Active",
+    status: "Sold",
     price: 340000,
     postedDate: "2026-07-22",
     expiryDate: "2026-09-05",
@@ -647,7 +639,7 @@ export const adsData: Ad[] = [
       nearbyFacilities: ["Beach", "Masjid", "Houses"],
     },
     description:
-      "The pinnacle of coastal luxury living in Oman. Ultra-luxury triplex penthouse with 360-degree ocean views, double-height ceilings, private infinity pool, Italian marble flooring, and 24-hour concierge.",
+      "Exclusive ZoqoDeal Signature Deal: The pinnacle of coastal luxury living in Oman. Ultra-luxury triplex penthouse with 360-degree ocean views, double-height ceilings, private infinity pool, Italian marble flooring, and 24-hour concierge.",
     images: [
       "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&auto=format&fit=crop&q=80",
     ],
@@ -657,7 +649,7 @@ export const adsData: Ad[] = [
     title: "Seafront Luxury Residences",
     category: "Projects",
     subcategory: "New Developments",
-    postingType: "Projects",
+    postingType: "Promotional",
     governorate: "Al Sharqiya",
     city: "Sur",
     address: "Al Aija Waterfront District",
@@ -693,7 +685,7 @@ export const adsData: Ad[] = [
     title: "Modern 1BHK Apartment",
     category: "Apartments",
     subcategory: "Apartments for Rent",
-    postingType: "For Rent",
+    postingType: "Free",
     governorate: "Muscat",
     city: "Al Khuwair",
     address: "Near Grand Mall, Street 41",
@@ -728,13 +720,13 @@ export const adsData: Ad[] = [
   realEstateAd({
     id: "AD-10240",
     title: "Corporate Office Space",
-    category: "Commercial properties",
+    category: "Commercial Properties",
     subcategory: "Offices",
-    postingType: "For Rent",
+    postingType: "Sell ZoqoDeal",
     governorate: "Muscat",
     city: "Azaiba",
     address: "Sultan Qaboos Highway, Tower 4, 6th Floor",
-    userName: "Gulf Commercial Assets",
+    userName: "ZoqoDeal Corporate Hub",
     userAccountType: "Agent",
     status: "Active",
     price: 1200,
@@ -756,7 +748,7 @@ export const adsData: Ad[] = [
       nearbyFacilities: ["Highway", "Masjid", "Shops"],
     },
     description:
-      "Turnkey Grade-A office space with direct visibility from Sultan Qaboos Street. Fitted with partitioned executive cabins, 12-person conference room, server room, and high-speed fiber internet infrastructure.",
+      "ZoqoDeal Commercial Exclusive: Turnkey Grade-A office space with direct visibility from Sultan Qaboos Street. Fitted with partitioned executive cabins, 12-person conference room, server room, and high-speed fiber internet infrastructure.",
     images: [
       "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&auto=format&fit=crop&q=80",
     ],
@@ -766,7 +758,7 @@ export const adsData: Ad[] = [
     title: "Beachfront Chalet",
     category: "Chalets",
     subcategory: "Chalets & Holiday Homes",
-    postingType: "For Sale",
+    postingType: "Free",
     governorate: "Dhofar",
     city: "Salala",
     address: "Hawana Salalah Resort, Villa 22",
@@ -803,15 +795,15 @@ export const adsData: Ad[] = [
   realEstateAd({
     id: "AD-10242",
     title: "Industrial Warehouse",
-    category: "Commercial properties",
+    category: "Commercial Properties",
     subcategory: "Warehouses",
-    postingType: "For Rent",
+    postingType: "Sell ZoqoDeal",
     governorate: "Al Batinah",
     city: "Sohar",
     address: "Freezone Logistics Hub, Gate 4",
-    userName: "Batinah Logistics Co.",
+    userName: "ZoqoDeal Industrial Logistics",
     userAccountType: "Agent",
-    status: "Active",
+    status: "Sold",
     price: 3200,
     postedDate: "2026-07-29",
     expiryDate: "2026-09-12",
@@ -830,9 +822,79 @@ export const adsData: Ad[] = [
       nearbyFacilities: ["Highway"],
     },
     description:
-      "State-of-the-art heavy logistics warehouse in Sohar Freezone with 12m clear ceiling height, heavy floor load capacity (5 ton/sqm), 3 automated loading docks, fire sprinkler system, and built-in administrative office mezzanine.",
+      "ZoqoDeal Verified Commercial: State-of-the-art heavy logistics warehouse in Sohar Freezone with 12m clear ceiling height, heavy floor load capacity (5 ton/sqm), 3 automated loading docks, fire sprinkler system, and built-in administrative office mezzanine.",
     images: [
       "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&auto=format&fit=crop&q=80",
+    ],
+  }),
+  realEstateAd({
+    id: "AD-10243",
+    title: "Executive 3BHK Penthouse with Pool",
+    category: "Apartments",
+    subcategory: "Penthouses",
+    postingType: "Sell ZoqoDeal",
+    governorate: "Muscat",
+    city: "Al Mouj",
+    address: "Marina Boulevard Block C",
+    userName: "ZoqoDeal Premium Deals",
+    userAccountType: "Agent",
+    status: "Pending",
+    price: 240000,
+    postedDate: "2026-08-16",
+    expiryDate: "2026-09-30",
+    featured: true,
+    verified: true,
+    views: 195,
+    clicks: 34,
+    propertyDetails: {
+      propertyType: "Penthouse",
+      bedrooms: "3",
+      bathrooms: 4,
+      area: 310,
+      floorNumber: "8th Floor",
+      furnishing: "yes",
+      projectStatus: "ready",
+      amenities: ["pool", "gym", "parking", "balcony", "security", "elevator", "maids-room"],
+      advancedFeatures: ["smart-home", "private-pool"],
+      nearbyFacilities: ["Beach", "Shops", "Masjid"],
+    },
+    description:
+      "ZoqoDeal Exclusive Luxury Listing: Direct marina views, private pool, rooftop terrace, and customized Italian interiors.",
+    images: [
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&auto=format&fit=crop&q=80",
+    ],
+  }),
+  realEstateAd({
+    id: "AD-10244",
+    title: "Al Khoud Commercial Plot",
+    category: "Land",
+    subcategory: "Commercial Land",
+    postingType: "Promotional",
+    governorate: "Muscat",
+    city: "Al Khoud",
+    address: "Commercial Market Strip 7",
+    userName: "Nasser Al Harthy",
+    userAccountType: "Agent",
+    status: "Sold",
+    price: 92000,
+    postedDate: "2026-07-15",
+    expiryDate: "2026-08-30",
+    featured: true,
+    verified: true,
+    views: 2240,
+    clicks: 310,
+    propertyDetails: {
+      propertyType: "Land",
+      landArea: 450,
+      area: 450,
+      projectStatus: "ready",
+      amenities: ["security"],
+      nearbyFacilities: ["Highway", "Shops", "Houses"],
+    },
+    description:
+      "Sold Commercial Corner Plot with building permit for G+4 commercial-residential building.",
+    images: [
+      "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&auto=format&fit=crop&q=80",
     ],
   }),
 ]

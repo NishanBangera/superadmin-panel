@@ -522,7 +522,7 @@ export function AdEditForm({ adId }: { adId: string }) {
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <Field>
-                  <FieldLabel htmlFor="ad-postingType">Listing Purpose</FieldLabel>
+                  <FieldLabel htmlFor="ad-postingType">Posting Type</FieldLabel>
                   <Select
                     value={form.postingType}
                     onValueChange={(val) => {
@@ -534,7 +534,7 @@ export function AdEditForm({ adId }: { adId: string }) {
                     }}
                   >
                     <SelectTrigger id="ad-postingType" className="w-full">
-                      <SelectValue>{form.postingType || "For Sale"}</SelectValue>
+                      <SelectValue>{form.postingType || "Free"}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {postingTypes.map((pt) => (
@@ -548,7 +548,7 @@ export function AdEditForm({ adId }: { adId: string }) {
 
                 <Field>
                   <FieldLabel htmlFor="ad-price">
-                    Price (OMR{form.postingType === "For Rent" ? " / Monthly" : ""}) *
+                    Price (OMR) *
                   </FieldLabel>
                   <Input
                     id="ad-price"

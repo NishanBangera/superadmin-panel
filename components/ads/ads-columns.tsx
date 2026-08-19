@@ -39,7 +39,7 @@ export function formatPrice(
     return t("cellValues.onRequest")
   }
   const formatted = `${price.toLocaleString("en-US")} ${t("cellValues.currency")}`
-  return postingType === "For Rent" ? `${formatted} ${t("cellValues.perMonth")}` : formatted
+  return formatted
 }
 
 export function formatDate(value: string, locale: string) {
@@ -50,25 +50,25 @@ export function formatDate(value: string, locale: string) {
   })
 }
 
-const postingTypeColors: Record<string, string> = {
-  "For Sale": "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
-  "For Rent": "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20",
-  "Projects": "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20",
+export const postingTypeColors: Record<string, string> = {
+  Free: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+  Promotional: "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20",
+  "Sell ZoqoDeal": "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
 }
 
-function getPostingTypeLabel(
+export function getPostingTypeLabel(
   postingType: string | undefined,
   t: TranslatorFn
 ): string {
   switch (postingType) {
-    case "For Sale":
-      return t("cellValues.forSale")
-    case "For Rent":
-      return t("cellValues.forRent")
-    case "Projects":
-      return t("cellValues.projects")
+    case "Free":
+      return t("cellValues.free")
+    case "Promotional":
+      return t("cellValues.promotional")
+    case "Sell ZoqoDeal":
+      return t("cellValues.sellZoqodeal")
     default:
-      return t("cellValues.forSale")
+      return postingType || t("cellValues.free")
   }
 }
 
@@ -80,12 +80,19 @@ export type AdsColumnHandlers = {
   onToggleSold: (ad: Ad, value: boolean) => void
 }
 
+export type AdsColumnsOptions = {
+  showSoldColumn?: boolean
+}
+
 export function getAdsColumns(
   handlers: AdsColumnHandlers,
   t: TranslatorFn,
-  locale: string
+  locale: string,
+  options?: AdsColumnsOptions
 ): ColumnDef<Ad>[] {
-  return [
+  const showSoldColumn = options?.showSoldColumn === true
+
+  const columns: ColumnDef<Ad>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -178,7 +185,7 @@ export function getAdsColumns(
       accessorKey: "postingType",
       header: t("columns.type"),
       cell: ({ row }) => {
-        const type = row.original.postingType || "For Sale"
+        const type = row.original.postingType || "Free"
         return (
           <Badge
             variant="outline"
@@ -256,7 +263,11 @@ export function getAdsColumns(
         />
       ),
     },
-    {
+  ]
+
+  // ONLY enable "Mark as Sold" switch column in ZoqoDeal Ads
+  if (showSoldColumn) {
+    columns.push({
       id: "sold",
       header: t("columns.sold"),
       cell: ({ row }) => (
@@ -269,67 +280,70 @@ export function getAdsColumns(
           aria-label={t("cellValues.markAsSold")}
         />
       ),
+    })
+  }
+
+  columns.push({
+    id: "actions",
+    header: () => <span className="sr-only">Actions</span>,
+    cell: ({ row }) => {
+      const ad = row.original
+      const isPending = ad.status === "Pending"
+
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button variant="ghost" size="icon-sm">
+                <MoreHorizontalIcon className="size-4" />
+              </Button>
+            }
+          />
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem
+              render={<Link href={`/ads/${ad.id}`} className="flex items-center gap-2 w-full" />}
+            >
+              <EyeIcon className="size-4" /> {t("cellValues.viewDetails")}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              render={<Link href={`/ads/${ad.id}/edit`} className="flex items-center gap-2 w-full" />}
+            >
+              <EditIcon className="size-4" /> {t("cellValues.editAdDetails")}
+            </DropdownMenuItem>
+
+            {/* ONLY show Approve and Reject options for pending ads */}
+            {isPending && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => handlers.onApprove(ad)}
+                  className="text-emerald-600 focus:text-emerald-700 dark:text-emerald-400"
+                >
+                  <CheckIcon className="size-4 text-emerald-600" /> {t("cellValues.approveAd")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handlers.onReject(ad)}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <XIcon className="size-4" /> {t("cellValues.rejectAd")}
+                </DropdownMenuItem>
+              </>
+            )}
+
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => handlers.onDelete(ad)}
+            >
+              <Trash2Icon className="size-4" /> {t("cellValues.deleteAd")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )
     },
-    {
-      id: "actions",
-      header: () => <span className="sr-only">Actions</span>,
-      cell: ({ row }) => {
-        const ad = row.original
-        const isPending = ad.status === "Pending"
+    enableSorting: false,
+    enableHiding: false,
+  })
 
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button variant="ghost" size="icon-sm">
-                  <MoreHorizontalIcon className="size-4" />
-                </Button>
-              }
-            />
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem
-                render={<Link href={`/ads/${ad.id}`} className="flex items-center gap-2 w-full" />}
-              >
-                <EyeIcon className="size-4" /> {t("cellValues.viewDetails")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                render={<Link href={`/ads/${ad.id}/edit`} className="flex items-center gap-2 w-full" />}
-              >
-                <EditIcon className="size-4" /> {t("cellValues.editAdDetails")}
-              </DropdownMenuItem>
-
-              {/* ONLY show Approve and Reject options for pending ads */}
-              {isPending && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => handlers.onApprove(ad)}
-                    className="text-emerald-600 focus:text-emerald-700 dark:text-emerald-400"
-                  >
-                    <CheckIcon className="size-4 text-emerald-600" /> {t("cellValues.approveAd")}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => handlers.onReject(ad)}
-                    className="text-destructive focus:text-destructive"
-                  >
-                    <XIcon className="size-4" /> {t("cellValues.rejectAd")}
-                  </DropdownMenuItem>
-                </>
-              )}
-
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={() => handlers.onDelete(ad)}
-              >
-                <Trash2Icon className="size-4" /> {t("cellValues.deleteAd")}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )
-      },
-      enableSorting: false,
-      enableHiding: false,
-    },
-  ]
+  return columns
 }

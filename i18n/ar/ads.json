@@ -2,9 +2,35 @@
   "pageHeader": {
     "title": "إدارة الإعلانات",
     "description": "مراجعة وإدارة وتصفية وتنظيم القوائم في السوق.",
+    "pendingTitle": "الإعلانات المعلقة",
+    "pendingDescription": "مراجعة واعتماد الإعلانات المقدمة بانتظار موافقة الإدارة.",
+    "soldTitle": "الإعلانات المباعة",
+    "soldDescription": "أرشيف وسجل الصفقات والإعلانات المكتملة والمباعة عبر المنصة.",
+    "zoqodealTitle": "إعلانات ذوقوديل",
+    "zoqodealDescription": "العقارات المدارة مباشرة، وقوائم الوكالات الحصرية، وإعلانات شركاء ذوقوديل.",
+    "reportsTitle": "بلاغات الإعلانات",
+    "reportsDescription": "مراجعة والتحقيق في البلاغات والشكاوى المقدمة من المستخدمين حول الإعلانات.",
     "autoExpirySettings": "إعدادات الانتهاء التلقائي",
     "resetData": "إعادة تعيين البيانات",
     "resetToast": "تمت إعادة تعيين البيانات التجريبية إلى الكتالوج الأولي"
+  },
+  "tabs": {
+    "all": "جميع الإعلانات",
+    "pending": "بانتظار الموافقة",
+    "sold": "الإعلانات المباعة",
+    "zoqodeal": "إعلانات ذوقوديل",
+    "reports": "بلاغات المستخدمين"
+  },
+  "metrics": {
+    "pendingApprovals": "بانتظار الموافقة",
+    "priorityFeatured": "أولوية / مميزة",
+    "standardListings": "إعلانات عادية",
+    "totalSold": "إجمالي المباع",
+    "transactionVolume": "حجم المعاملات",
+    "zoqodealAds": "إعلانات ذوقوديل",
+    "activeDeals": "صفقات نشطة",
+    "closedSold": "مغلقة / مباعة",
+    "totalValuation": "إجمالي التقييم"
   },
   "filters": {
     "searchPlaceholder": "البحث بالعنوان، البائع، المعرّف، الموقع…",
@@ -16,6 +42,56 @@
     "maxPlaceholder": "الحد الأقصى ر.ع",
     "featuredOnly": "المميزة فقط",
     "clearFilters": "مسح الفلاتر"
+  },
+  "reports": {
+    "title": "بلاغات المستخدمين عن الإعلانات",
+    "description": "مراجعة البلاغات والتحقيق فيها واتخاذ الإجراءات الرقابية المناسبة.",
+    "searchPlaceholder": "البحث بمعرّف البلاغ، عنوان الإعلان، المبلّغ أو البائع…",
+    "allReasons": "جميع الأسباب",
+    "statusPending": "بانتظار المراجعة",
+    "statusInvestigating": "قيد التحقيق",
+    "statusResolved": "تم الحل",
+    "statusDismissed": "تم الرفض",
+    "totalReports": "إجمالي البلاغات",
+    "pendingReports": "بانتظار المراجعة",
+    "investigatingReports": "قيد التحقيق",
+    "resolvedReports": "تم الحل / الرفض",
+    "columns": {
+      "reportId": "معرّف البلاغ",
+      "listing": "الإعلان المبلّغ عنه",
+      "reason": "السبب والتفاصيل",
+      "reporter": "مقدّم البلاغ",
+      "seller": "البائع",
+      "date": "تاريخ البلاغ",
+      "status": "الحالة",
+      "actions": "الإجراءات"
+    },
+    "actions": {
+      "viewDetails": "عرض تفاصيل البلاغ",
+      "investigate": "تعيين كقيد التحقيق",
+      "resolve": "حل البلاغ",
+      "dismiss": "رفض (لا توجد مخالفة)",
+      "suspendAd": "إيقاف / رفض الإعلان",
+      "deleteReport": "حذف البلاغ"
+    },
+    "dialog": {
+      "title": "تفاصيل البلاغ",
+      "subtitle": "معاينة أسباب البلاغ، وتفاصيل الإعلان، وسجل الإجراءات الإدارية.",
+      "reporterInfo": "معلومات مقدّم البلاغ",
+      "sellerInfo": "معلومات البائع",
+      "violationDetails": "المخالفة المبلغ عنها",
+      "moderatorNotes": "ملاحظات المشرف",
+      "notesPlaceholder": "أضف ملاحظات داخلية أو مبررات التدقيق…",
+      "actionTaken": "الإجراء المتخذ",
+      "saveNotes": "حفظ الملاحظات",
+      "suspendConfirmTitle": "إيقاف ورفض الإعلان",
+      "suspendConfirmDesc": "سيتم فوراً تحويل حالة الإعلان إلى مرفوض مع تسجيل سبب المخالفة."
+    },
+    "toasts": {
+      "statusUpdated": "تم تحديث البلاغ {id} إلى {status}",
+      "adSuspended": "تم إيقاف ورفض الإعلان {adId} بسبب البلاغ",
+      "notesSaved": "تم حفظ ملاحظات المشرف"
+    }
   },
   "sort": {
     "label": "ترتيب:",
@@ -70,9 +146,9 @@
     "sold": "مباع"
   },
   "cellValues": {
-    "forSale": "للبيع",
-    "forRent": "للإيجار",
-    "projects": "مشاريع",
+    "free": "مجاني",
+    "promotional": "ترويجي",
+    "sellZoqodeal": "بيع ذوقوديل",
     "individual": "فردي",
     "onRequest": "عند الطلب",
     "currency": "ر.ع",

@@ -32,6 +32,19 @@ export function SiteHeader() {
       : pathname.startsWith(item.href)
   )
 
+  let titleText = "ZOQO DEAL Super Admin"
+  if (pathname.startsWith("/ads/pending")) {
+    titleText = t("ads.pageHeader.pendingTitle")
+  } else if (pathname.startsWith("/ads/sold")) {
+    titleText = t("ads.pageHeader.soldTitle")
+  } else if (pathname.startsWith("/ads/zoqodeal")) {
+    titleText = t("ads.pageHeader.zoqodealTitle")
+  } else if (pathname.startsWith("/ads/reports")) {
+    titleText = t("ads.reports.title")
+  } else if (current) {
+    titleText = t(current.titleKey)
+  }
+
   const notifications = [
     { title: t("notifications.pendingApproval"), time: t("notifications.timeAgo5m") },
     { title: t("notifications.userReport"), time: t("notifications.timeAgo1h") },
@@ -44,7 +57,7 @@ export function SiteHeader() {
         <SidebarTrigger className="-ms-1" />
         <Separator orientation="vertical" className="h-4" />
         <h2 className="font-heading text-sm font-semibold tracking-tight text-foreground truncate">
-          {current?.titleKey ? t(current.titleKey) : "ZOQO DEAL Super Admin"}
+          {titleText}
         </h2>
       </div>
 
